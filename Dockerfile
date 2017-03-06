@@ -18,7 +18,7 @@ COPY etc/yum.repos.d/yarn.repo /etc/yum.repos.d/yarn.repo
 # the new line is a separate command
 
 # install all the packages we need
-# enable the remi php 7.1 repo
+# enable the remi php 7.0 repo
 
 # SSLProxyEngine requires mod_ssl to connect to a https endpoint
 # Usually you'd only have mod_ssl if you were serving https content,
@@ -28,7 +28,7 @@ RUN dnf -y upgrade --setopt=deltarpm=false \
     && dnf -y install \
         http://rpms.remirepo.net/fedora/remi-release-25.rpm \
         dnf-plugins-core \
-    && dnf config-manager --set-enabled remi remi-php71 \
+    && dnf config-manager --set-enabled remi remi-php70 \
     && dnf -y remove \
         dnf-plugins-core \
         python3-dnf-plugins-core \
