@@ -9,9 +9,6 @@ if [ ! -f ${LARAVEL_RUN_PATH}/setup-completed ]; then
     exit 1
 fi
 
-# clear leftover pid files from interrupted containers
-rm -f /var/run/apache2/apache2.pid
-
 # reset permissions of laravel run-time caches
 chown -R apache:apache ${LARAVEL_RUN_PATH}
 find ${LARAVEL_RUN_PATH} -type d -print0 | xargs -0 chmod 775
@@ -30,5 +27,12 @@ fi
 
 # start processes
 echo "Starting Apache"
-source /etc/apache2/envvars
-exec /usr/sbin/apache2 -DFOREGROUND
+
+# same method used by https://github.com/fedora-cloud/Fedora-Dockerfiles/blob/master/apache/run-apache.sh
+
+# Make sure we're not confused by old, incompletely-shutdown httpd
+# context after restarting the container.  httpd won't start correctly
+# if it thinks it is already running.
+rm -rf /run/httpd/* /tmp/httpd*
+
+exec /usr/sbin/httpd -D FOREGROUND
