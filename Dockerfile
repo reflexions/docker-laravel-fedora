@@ -24,6 +24,7 @@ COPY etc/yum.repos.d/yarn.repo /etc/yum.repos.d/yarn.repo
 # Usually you'd only have mod_ssl if you were serving https content,
 # but we're using CloudFlare for that.
 # unzip is used to speed up composer
+# findutils provides find and xargs, used by start.sh.
 RUN dnf -y upgrade --setopt=deltarpm=false \
     && dnf -y install \
         http://rpms.remirepo.net/fedora/remi-release-25.rpm \
@@ -34,6 +35,7 @@ RUN dnf -y upgrade --setopt=deltarpm=false \
         python3-dnf-plugins-core \
     && dnf -y install \
         composer \
+        findutils \
         git \
         hostname \
         ImageMagick \
