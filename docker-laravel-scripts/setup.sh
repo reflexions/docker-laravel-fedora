@@ -8,7 +8,6 @@ set -x #echo on
 echo "-----------------------"
 echo "START setup.sh"
 echo "-----------------------"
-cd /usr/share/docker-laravel
 
 # application run dirs
 mkdir ${LARAVEL_RUN_PATH}
