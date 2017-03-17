@@ -37,7 +37,7 @@ ssh-keyscan -H github.com | sort -u - ~/.ssh/known_hosts > ~/.ssh/tmp_hosts
 mv ~/.ssh/tmp_hosts ~/.ssh/known_hosts
 
 # configure composer
-if [ "$GITHUB_TOKEN" != "Your_Github_Token" ]; then
+if [ ! -z "$GITHUB_TOKEN" ]; then
     composer config --global github-oauth.github.com $GITHUB_TOKEN
     composer config --global repo.packagist composer https://packagist.org
 

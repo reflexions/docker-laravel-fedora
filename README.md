@@ -39,17 +39,17 @@ database:
 
 ```bash
 # laravel service
-GITHUB_TOKEN=Your_Github_Token
-APP_KEY=SomeRandomString
+GITHUB_TOKEN=
+APP_KEY=
 DB_CONNECTION=pgsql
 DB_HOST=database
-DB_DATABASE=application
-DB_USERNAME=username
-DB_PASSWORD=password
+DB_DATABASE=
+DB_USERNAME=
+DB_PASSWORD=
 
 # database service
-POSTGRES_DB=application
-POSTGRES_USER=username
+POSTGRES_DB=
+POSTGRES_USER=
 POSTGRES_PASSWORD=
 ```
 
@@ -178,19 +178,19 @@ database:
   - Modify `.env` to reference MySQL:
 ```bash
 # laravel service
-GITHUB_TOKEN=Your_Github_Token
-APP_KEY=SomeRandomString
+GITHUB_TOKEN=
+APP_KEY=
 DB_CONNECTION=mysql
 DB_HOST=database
-DB_DATABASE=application
-DB_USERNAME=username
-DB_PASSWORD=password
+DB_DATABASE=
+DB_USERNAME=
+DB_PASSWORD=
 
 # database service
-MYSQL_ROOT_PASSWORD=password
-MYSQL_DATABASE=application
-MYSQL_USER=username
-MYSQL_PASSWORD=password
+MYSQL_ROOT_PASSWORD=
+MYSQL_DATABASE=
+MYSQL_USER=
+MYSQL_PASSWORD=
 ```
 
 ##### **Problem:** Want to use mysql already running on local machine (not docker)
@@ -209,13 +209,13 @@ laravel:
   - Modify `.env` to connect to MySQL via the docker-machine host ip address (192.168.99.1):
 ```bash
 # laravel service
-GITHUB_TOKEN=Your_Github_Token
-APP_KEY=SomeRandomString
+GITHUB_TOKEN=
+APP_KEY=
 DB_CONNECTION=mysql
 DB_HOST=192.168.99.1
-DB_DATABASE=application
-DB_USERNAME=username
-DB_PASSWORD=password
+DB_DATABASE=
+DB_USERNAME=
+DB_PASSWORD=
 ```
   - Ensure that "bind_address" config parameter is set to 0.0.0.0 on startup.  This can be set by your `my.cnf`, or it can be hard coded in your startup script.  To check the value use this sql:
 ```sql
