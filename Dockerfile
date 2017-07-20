@@ -1,4 +1,4 @@
-FROM fedora:25
+FROM fedora:26
 
 EXPOSE 80
 WORKDIR /tmp
@@ -12,35 +12,27 @@ ENV LANG en_US.utf8
 # see: https://git.fedorahosted.org/cgit/spin-kickstarts.git/tree/fedora-docker-base.ks
 RUN echo 'tsflags=nodocs' >> /etc/dnf/dnf.conf
 
-# install yarn (npm replacement)
-COPY etc/yum.repos.d/yarn.repo /etc/yum.repos.d/yarn.repo
+# install node 8 repo (nodesource-release package)
+RUN curl --silent --location https://rpm.nodesource.com/setup_8.x | bash -
 
 # putting && on next line, because then it's more obvious that
 # the new line is a separate command
 
-# install all the packages we need
-# enable the remi php 7.1 repo
-
 # SSLProxyEngine requires mod_ssl to connect to a https endpoint
-# Usually you'd only have mod_ssl if you were serving https content,
-# but we're using CloudFlare for that.
 # unzip is used to speed up composer
 # findutils provides find and xargs, used by start.sh.
+# gcc-c++ and make are for building native node addons
 RUN dnf -y upgrade --setopt=deltarpm=false \
-    && dnf -y install \
-        http://rpms.remirepo.net/fedora/remi-release-25.rpm \
-        dnf-plugins-core \
-    && dnf config-manager --set-enabled remi remi-php71 \
-    && dnf -y remove \
-        dnf-plugins-core \
-        python3-dnf-plugins-core \
     && dnf -y install \
         composer \
         findutils \
+        gcc-c++ \
         git \
         hostname \
         ImageMagick \
+        make \
         mod_ssl \
+        nodejs \
         php \
         php-gd \
         php-imap \
@@ -51,10 +43,10 @@ RUN dnf -y upgrade --setopt=deltarpm=false \
         php-pdo \
         php-pecl-memcached \
         php-pgsql \
+        php-redis \
         php-soap \
         php-xml \
         unzip \
-        yarn \
     && dnf clean packages
 
 # Configure php
