@@ -6,6 +6,7 @@ ENTRYPOINT ["/usr/share/docker-laravel-scripts/start.sh"]
 
 # default is 'dumb'. that cripples less, vim, coloring, etc
 ENV TERM xterm-256color
+ENV LANG en_US.utf8
 
 # the fedora base image is trying to enable this, but it's not working. we'll do it manually.
 # see: https://git.fedorahosted.org/cgit/spin-kickstarts.git/tree/fedora-docker-base.ks
