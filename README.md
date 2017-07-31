@@ -2,7 +2,7 @@
 
 by [Reflexions](https://reflexions.co)
 
-- Only depends on the Docker
+- Only depends on Docker
 - Edit with Sublime, PhpStorm, Eclipse, etc
 - Installs everything necessary to get started - laravel, php, database, imagemagick
   - Can start with empty directory or existing laravel project
@@ -11,47 +11,71 @@ by [Reflexions](https://reflexions.co)
 
 #### Instructions
 
-1.) Install [Docker Toolbox](https://www.docker.com/docker-toolbox) to get docker, docker-compose, and the Kitematic GUI.  Open a terminal with the docker env variables via `Kitematic -> File -> Open Docker Command Line Terminal`
+1.) Install [Docker](https://www.docker.com/community-edition#/download) to get docker, docker-compose, and the Kitematic GUI.  Open a terminal with the docker env variables via `Kitematic -> File -> Open Docker Command Line Terminal`
 
-2.) Create a _docker-compose.yml_ in the project directory.  Define the laravel service and any desired database services:
+2.) Create a _docker-compose.yml_ and _docker-compose.override.yml_ in the project directory.  Define the laravel service and any desired database services:
+
+##### docker-compose.yml
 
 ```yaml
-laravel:
-  image: reflexions/docker-laravel-fedora:latest
-  ports:
-    - "80:80"
-  env_file: .env
-  links:
-    - database
-  volumes:
-    - .:/var/www/laravel
+version: '3'
+services:
+  laravel:
+    image: reflexions/docker-laravel-fedora:26
+    env_file: .env
+    links:
+      - database
 
-database:
-  image: postgres:9.6
-  ports:
-    - "5432:5432"
-  env_file: .env
-  environment:
-    LC_ALL: C.UTF-8
+  database:
+    image: postgres:9.6
+    env_file: .env
+    environment:
+      LC_ALL: C.UTF-8
 ```
 
-3.) Obtain a [Github Personal Access Token](https://github.com/settings/tokens/new).  Create an  _.env_ file in the project directory.  Configure laravel and other services as desired.  The `database` service above corresponds to `DB_HOST=database` below:
+The override file shouldn't be committed to git. It's for settings that differ between environments.
+
+##### docker-compose.override.yml
+
+
+```yaml
+version: '3'
+services:
+  laravel:
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www/laravel
+
+  database:
+    ports:
+      - "5432:5432"
+```
+
+3.) Create an  _.env_ file in the project directory.
+
+The `database` service above corresponds to `DB_HOST=database` below.
+You'll have to fill in the blanks in the .env example:
 
 ```bash
 # laravel service
-GITHUB_TOKEN=Your_Github_Token
-APP_KEY=SomeRandomString
+APP_KEY=
 DB_CONNECTION=pgsql
 DB_HOST=database
-DB_DATABASE=application
-DB_USERNAME=username
-DB_PASSWORD=password
+DB_DATABASE=
+DB_USERNAME=
+DB_PASSWORD=
 
 # database service
-POSTGRES_DB=application
-POSTGRES_USER=username
+POSTGRES_DB=
+POSTGRES_USER=
 POSTGRES_PASSWORD=
 ```
+
+
+4.) Obtain a [Github Personal Access Token](https://github.com/settings/tokens/new). Provide that in the GITHUB_TOKEN env var 
+
+Alternatively, create a GitHub user and ssh key that are only used by builds, and cp that to /root/.ssh/id_rsa
 
 4.) With one command download the images, create the service containers, and start the application:
 
@@ -76,15 +100,15 @@ root@4c0491540409:/var/www/laravel# php artisan tinker
 #### Overview
 
 - Runs setup script first time
-- Uses github token to avoid composer rate limit errors
+- Uses github credentials to avoid composer rate limit errors
 - Downloads fresh laravel 5.4 if the _app_ directory is missing
-- Adds dependency on `reflexions/docker-laravel` composer package
+- Adds dependency on `reflexions/docker-laravel-fedora` composer package
 - Updates _bootstrap/app.php_ to use `Reflexions\DockerLaravel\DockerApplication` to prevent permissions errors
 
 
 #### Front-end build systems
 
-Front-end build systems (gulp, grunt, bower, etc) are best installed outside of docker.  The resulting assets will be readily accessible via the volume mapping defined on the laravel service.
+These (webpack, gulp, etc) should be configured in your project's Dockerfile
 
 
 #### Elastic Beanstalk
@@ -156,66 +180,62 @@ _**Solution:**_
 
 _**Solution:**_
   - Modify `docker-config.yml` to reference MySQL:
-```yaml
-laravel:
-  image: reflexions/docker-laravel-fedora:latest
-  ports:
-    - 80:80
-  env_file: .env
-  links:
-    - database
-  volumes:
-    - .:/var/www/laravel
 
-database:
-  image: mysql:5.6
-  ports:
-    - 3306:3306
-  env_file: .env
-  environment:
-    LC_ALL: C.UTF-8
+
+```yaml
+version: '3'
+services:
+  laravel:
+    image: reflexions/docker-laravel-fedora:26
+    env_file: .env
+    links:
+      - database
+
+  database:
+    image: mysql:5.6
+    env_file: .env
+    environment:
+      LC_ALL: C.UTF-8
+```
+
+
+##### docker-compose.override.yml
+
+```yaml
+version: '3'
+services:
+  laravel:
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www/laravel
+
+  database:
+    ports:
+      - "3306:3306"
 ```
   - Modify `.env` to reference MySQL:
 ```bash
-# laravel service
-GITHUB_TOKEN=Your_Github_Token
-APP_KEY=SomeRandomString
 DB_CONNECTION=mysql
-DB_HOST=database
-DB_DATABASE=application
-DB_USERNAME=username
-DB_PASSWORD=password
 
 # database service
-MYSQL_ROOT_PASSWORD=password
-MYSQL_DATABASE=application
-MYSQL_USER=username
-MYSQL_PASSWORD=password
+MYSQL_ROOT_PASSWORD=
+MYSQL_DATABASE=
+MYSQL_USER=
+MYSQL_PASSWORD=
 ```
 
 ##### **Problem:** Want to use mysql already running on local machine (not docker)
 
 _**Solution:**_
-  - Modify `docker-config.yml` to drop the unnecessary database service:
-```yaml
-laravel:
-  image: reflexions/docker-laravel-docker:latest
-  ports:
-    - 80:80
-  env_file: .env
-  volumes:
-    - .:/var/www/laravel
-```
+  - Modify `docker-config.yml` to remove references to database
   - Modify `.env` to connect to MySQL via the docker-machine host ip address (192.168.99.1):
 ```bash
-# laravel service
-GITHUB_TOKEN=Your_Github_Token
-APP_KEY=SomeRandomString
 DB_CONNECTION=mysql
 DB_HOST=192.168.99.1
-DB_DATABASE=application
-DB_USERNAME=username
-DB_PASSWORD=password
+DB_DATABASE=
+DB_USERNAME=
+DB_PASSWORD=
 ```
   - Ensure that "bind_address" config parameter is set to 0.0.0.0 on startup.  This can be set by your `my.cnf`, or it can be hard coded in your startup script.  To check the value use this sql:
 ```sql
