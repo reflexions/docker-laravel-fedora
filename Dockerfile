@@ -25,6 +25,12 @@ ENTRYPOINT ["/usr/share/docker-laravel-scripts/start.sh"]
 # findutils provides find and xargs, used by start.sh.
 # gcc-c++ and make are for building native node addons
 RUN dnf -y install \
+        http://rpms.remirepo.net/fedora/remi-release-27.rpm \
+        dnf-plugins-core \
+    && dnf config-manager --set-enabled remi remi-php72 \
+    && dnf -y remove \
+        dnf-plugins-core \
+        python3-dnf-plugins-core \
         composer \
         findutils \
         gcc-c++ \
