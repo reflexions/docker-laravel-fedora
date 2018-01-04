@@ -63,7 +63,7 @@ COPY etc/httpd/conf.d/vhost.conf /etc/httpd/conf.d/vhost.conf
 COPY etc/supervisord.d/supervisord.conf /etc/supervisord.d/supervisord.conf
 
 # start and setup scripts
-COPY --chmod=755 docker-laravel-scripts/* /usr/share/docker-laravel-scripts/
+COPY docker-laravel-scripts/* /usr/share/docker-laravel-scripts/
 
 # Default ENV
 # ------------------
