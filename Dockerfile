@@ -54,7 +54,7 @@ RUN dnf -y install \
 
 # Configure php
 COPY etc/php.d/php.ini /etc/php.d/local-overrides.ini
-COPY docker/php-fpm.ini /etc/php-fpm.d/www.conf
+COPY etc/php-fpm.d/php-fpm.ini /etc/php-fpm.d/www.conf
 
 # configure apache
 COPY etc/httpd/conf.d/vhost.conf /etc/httpd/conf.d/vhost.conf
