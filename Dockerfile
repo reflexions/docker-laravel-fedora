@@ -31,6 +31,7 @@ RUN dnf -y install \
     && dnf -y remove \
         dnf-plugins-core \
         python3-dnf-plugins-core \
+    && dnf -y install \
         composer \
         findutils \
         gcc-c++ \
