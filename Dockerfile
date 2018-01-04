@@ -1,6 +1,9 @@
 FROM fedora:27
 EXPOSE 80
 
+# putting && on next line, because then it's more obvious that
+# the new line is a separate command
+
 # default is 'dumb'. that cripples less, vim, coloring, etc
 ENV TERM xterm-256color
 ENV LANG en_US.utf8
@@ -9,11 +12,11 @@ ENV LANG en_US.utf8
 # see: https://git.fedorahosted.org/cgit/spin-kickstarts.git/tree/fedora-docker-base.ks
 RUN echo 'tsflags=nodocs' >> /etc/dnf/dnf.conf
 
+# install yarn repo
+COPY etc/yum.repos.d/yarn.repo /etc/yum.repos.d/yarn.repo
+
 # install node 8 repo (nodesource-release package)
 RUN curl --silent --location https://rpm.nodesource.com/setup_9.x | bash -
-
-# putting && on next line, because then it's more obvious that
-# the new line is a separate command
 
 RUN dnf -y upgrade --setopt=deltarpm=false \
     && dnf clean packages
@@ -50,6 +53,7 @@ RUN dnf -y install \
         php-xml \
         supervisor \
         unzip \
+        yarn \
     && dnf clean packages
 
 # Configure php
