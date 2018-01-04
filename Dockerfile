@@ -73,3 +73,4 @@ ENV LARAVEL_WWW_PATH=/var/www/laravel \
     LARAVEL_BOOTSTRAP_CACHE_PATH=/var/run/laravel/bootstrap/cache
 
 WORKDIR /var/www/laravel
+VOLUME ["/var/www/laravel", "/var/run/laravel/storage"]
