@@ -25,14 +25,14 @@ elif [ "$RUN_MIGRATE" == 1 -o "${RUN_MIGRATE,,}" == 'true' ] ; then
     php artisan migrate
 fi
 
-# start processes
-echo "Starting Apache"
-
 # same method used by https://github.com/fedora-cloud/Fedora-Dockerfiles/blob/master/apache/run-apache.sh
 
 # Make sure we're not confused by old, incompletely-shutdown httpd
 # context after restarting the container.  httpd won't start correctly
 # if it thinks it is already running.
-rm -rf /run/httpd/* /tmp/httpd*
+rm -rf /run/httpd/* /tmp/httpd* /run/supervisord.pid
 
-exec /usr/sbin/httpd -D FOREGROUND
+# start processes
+echo "Starting the Supervisor daemon"
+
+exec /usr/bin/supervisord -c /etc/supervisord.d/supervisord.conf
