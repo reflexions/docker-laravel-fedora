@@ -78,6 +78,11 @@ ENV LARAVEL_WWW_PATH=/var/www/laravel \
 
 WORKDIR /var/www/laravel
 
+VOLUME [
+    "/usr/share/httpd/.composer/cache/",
+    "/usr/share/httpd/.cache/yarn/"
 # We won't make these volumes now, but the extending Dockerfile may want to do this if
 # baking those dirs into the image is undesirable.
-# VOLUME ["/var/www/laravel", "/var/run/laravel/storage"]
+#    "/var/www/laravel",
+#    "/var/run/laravel/storage"
+]
