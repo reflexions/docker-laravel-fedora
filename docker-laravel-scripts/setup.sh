@@ -18,9 +18,7 @@ chmod -R 775 ${LARAVEL_RUN_PATH}
 mkdir -p ${LARAVEL_STORAGE_PATH}
 mkdir ${LARAVEL_STORAGE_PATH}/app
 mkdir ${LARAVEL_STORAGE_PATH}/framework
-mkdir ${LARAVEL_STORAGE_PATH}/framework/sessions
-mkdir ${LARAVEL_STORAGE_PATH}/framework/views
-mkdir ${LARAVEL_STORAGE_PATH}/framework/cache
+mkdir ${LARAVEL_STORAGE_PATH}/framework/{sessions,views,cache}
 mkdir ${LARAVEL_STORAGE_PATH}/logs
 chown -R apache ${LARAVEL_STORAGE_PATH}
 chmod -R 775 ${LARAVEL_STORAGE_PATH}
@@ -38,6 +36,7 @@ ssh-keyscan -H github.com | sort -u - ~/.ssh/known_hosts > ~/.ssh/tmp_hosts
 mv ~/.ssh/tmp_hosts ~/.ssh/known_hosts
 
 # configure composer if we have a token
+# GITHUB_TOKEN would be passed in as a build-arg or as an ENV var in the child Dockerfile calling setup.sh
 if [ -z "$GITHUB_TOKEN" ]; then
     composer config --global github-oauth.github.com $GITHUB_TOKEN
     composer config --global repo.packagist composer https://packagist.org
