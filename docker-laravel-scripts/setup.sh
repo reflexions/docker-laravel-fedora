@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -x #echo on
 
 # This script sets up OS-level config. This script is run by Dockerfile before the Project dir is copied over,
 # so it doesn't expect app files to exist yet
@@ -8,6 +7,8 @@ set -x #echo on
 echo "-----------------------"
 echo "START setup.sh"
 echo "-----------------------"
+
+set -x #echo on
 
 # application run dirs
 mkdir ${LARAVEL_RUN_PATH}
