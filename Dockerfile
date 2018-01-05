@@ -85,9 +85,14 @@ ENV LARAVEL_WWW_PATH=/var/www/laravel \
 
 WORKDIR /var/www/laravel
 
+# so that the volumes are writeable by apache
+RUN mkdir /usr/share/httpd/{.cache,.composer,.yarn} \
+    && chown apache:apache /usr/share/httpd/{.cache,.composer,.yarn}
+
 VOLUME [ \
-    "/usr/share/httpd/.composer/cache/", \
-    "/usr/share/httpd/.cache/yarn/" \
+    "/usr/share/httpd/.cache", \
+    "/usr/share/httpd/.composer", \
+    "/usr/share/httpd/.yarn" \
 # We won't make these volumes now, but the extending Dockerfile may want to do this if
 # baking those dirs into the image is undesirable.
 #    "/var/www/laravel", \
