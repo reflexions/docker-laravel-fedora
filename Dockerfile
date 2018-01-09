@@ -68,7 +68,7 @@ COPY etc/php.d/php.ini /etc/php.d/local-overrides.ini
 COPY etc/php-fpm.d/php-fpm.ini /etc/php-fpm.d/www.conf
 
 # configure apache
-COPY etc/httpd/conf.d/vhost.conf /etc/httpd/conf.d/vhost.conf
+COPY etc/httpd/conf.d/* /etc/httpd/conf.d/
 
 # supervisord
 COPY etc/supervisord.d/supervisord.conf /etc/supervisord.d/supervisord.conf
