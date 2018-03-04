@@ -4,8 +4,6 @@ EXPOSE 80
 # putting && on next line, because then it's more obvious that
 # the new line is a separate command
 
-# default is 'dumb'. that cripples less, vim, coloring, etc
-ENV TERM xterm-256color
 ENV LANG en_US.utf8
 
 # the fedora base image is trying to enable this, but it's not working. we'll do it manually.
