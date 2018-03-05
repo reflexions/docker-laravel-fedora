@@ -11,6 +11,8 @@ RUN echo 'tsflags=nodocs' >> /etc/dnf/dnf.conf
 
 EXPOSE 80
 
+WORKDIR /var/www/laravel
+
 ENTRYPOINT ["/usr/share/docker-laravel-scripts/start.sh"]
 
 # install yarn repo
@@ -62,7 +64,8 @@ COPY etc/php-fpm.d/php-fpm.ini /etc/php-fpm.d/www.conf
 COPY etc/httpd/conf.d/* /etc/httpd/conf.d/
 
 # supervisord
-COPY etc/supervisord.d/supervisord.conf /etc/supervisord.d/supervisord.conf
+COPY etc/supervisord.conf /etc/supervisord.conf
+COPY etc/supervisord.d/* /etc/supervisord.d/
 
 # start and setup scripts
 COPY docker-laravel-scripts/* /usr/share/docker-laravel-scripts/
@@ -73,8 +76,6 @@ ENV LARAVEL_WWW_PATH=/var/www/laravel \
     LARAVEL_RUN_PATH=/var/run/laravel \
     LARAVEL_STORAGE_PATH=/var/run/laravel/storage \
     LARAVEL_BOOTSTRAP_CACHE_PATH=/var/run/laravel/bootstrap/cache
-
-WORKDIR /var/www/laravel
 
 # so that the volumes are writeable by apache
 RUN mkdir /usr/share/httpd/{.cache,.composer,.yarn} \
