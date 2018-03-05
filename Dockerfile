@@ -1,5 +1,4 @@
 FROM fedora:27
-EXPOSE 80
 
 # putting && on next line, because then it's more obvious that
 # the new line is a separate command
@@ -10,32 +9,32 @@ ENV LANG en_US.utf8
 # see: https://git.fedorahosted.org/cgit/spin-kickstarts.git/tree/fedora-docker-base.ks
 RUN echo 'tsflags=nodocs' >> /etc/dnf/dnf.conf
 
+EXPOSE 80
+
+ENTRYPOINT ["/usr/share/docker-laravel-scripts/start.sh"]
+
 # install yarn repo
 COPY etc/yum.repos.d/yarn.repo /etc/yum.repos.d/yarn.repo
 
 # install node 8 repo (nodesource-release package)
 RUN curl --silent --location https://rpm.nodesource.com/setup_9.x | bash -
 
-RUN dnf -y upgrade --setopt=deltarpm=false \
-    && dnf clean packages
-
-ENTRYPOINT ["/usr/share/docker-laravel-scripts/start.sh"]
-
 # SSLProxyEngine requires mod_ssl to connect to a https endpoint
 # unzip is used to speed up composer
 # findutils provides find and xargs, used by start.sh.
 # gcc-c++ and make are for building native node addons
-RUN dnf -y install \
+RUN dnf -y upgrade --setopt=deltarpm=false \
+    && dnf -y install \
         composer \
         findutils \
         gcc-c++ \
         git \
+        httpd \
         hostname \
         ImageMagick \
         make \
         mod_ssl \
         nodejs \
-        php \
         php-fpm \
         php-gd \
         php-imap \
@@ -51,6 +50,7 @@ RUN dnf -y install \
         php-xml \
         supervisor \
         unzip \
+        vim \
         yarn \
     && dnf clean packages
 
