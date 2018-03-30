@@ -1,16 +1,19 @@
 FROM fedora:27
-EXPOSE 80
 
 # putting && on next line, because then it's more obvious that
 # the new line is a separate command
 
-# default is 'dumb'. that cripples less, vim, coloring, etc
-ENV TERM xterm-256color
 ENV LANG en_US.utf8
 
 # the fedora base image is trying to enable this, but it's not working. we'll do it manually.
 # see: https://git.fedorahosted.org/cgit/spin-kickstarts.git/tree/fedora-docker-base.ks
 RUN echo 'tsflags=nodocs' >> /etc/dnf/dnf.conf
+
+EXPOSE 80
+
+WORKDIR /var/www/laravel
+
+ENTRYPOINT ["/usr/share/docker-laravel-scripts/start.sh"]
 
 # install yarn repo
 COPY etc/yum.repos.d/yarn.repo /etc/yum.repos.d/yarn.repo
@@ -18,17 +21,12 @@ COPY etc/yum.repos.d/yarn.repo /etc/yum.repos.d/yarn.repo
 # install node 8 repo (nodesource-release package)
 RUN curl --silent --location https://rpm.nodesource.com/setup_9.x | bash -
 
-RUN dnf -y upgrade --setopt=deltarpm=false \
-    && dnf clean packages
-
-ENTRYPOINT ["/usr/share/docker-laravel-scripts/start.sh"]
-
 # SSLProxyEngine requires mod_ssl to connect to a https endpoint
 # unzip is used to speed up composer
 # findutils provides find and xargs, used by start.sh.
 # gcc-c++ and make are for building native node addons
-RUN dnf -y install \
-        http://rpms.remirepo.net/fedora/remi-release-27.rpm \
+RUN dnf -y upgrade --setopt=deltarpm=false \
+    && dnf -y install \
         dnf-plugins-core \
     && dnf config-manager --set-enabled remi remi-php72 \
     && dnf -y remove \
@@ -39,12 +37,12 @@ RUN dnf -y install \
         findutils \
         gcc-c++ \
         git \
+        httpd \
         hostname \
         ImageMagick \
         make \
         mod_ssl \
         nodejs \
-        php \
         php-fpm \
         php-gd \
         php-imap \
@@ -60,6 +58,7 @@ RUN dnf -y install \
         php-xml \
         supervisor \
         unzip \
+        vim \
         yarn \
     && dnf clean packages
 
@@ -71,7 +70,8 @@ COPY etc/php-fpm.d/php-fpm.ini /etc/php-fpm.d/www.conf
 COPY etc/httpd/conf.d/* /etc/httpd/conf.d/
 
 # supervisord
-COPY etc/supervisord.d/supervisord.conf /etc/supervisord.d/supervisord.conf
+COPY etc/supervisord.conf /etc/supervisord.conf
+COPY etc/supervisord.d/* /etc/supervisord.d/
 
 # start and setup scripts
 COPY docker-laravel-scripts/* /usr/share/docker-laravel-scripts/
@@ -82,8 +82,6 @@ ENV LARAVEL_WWW_PATH=/var/www/laravel \
     LARAVEL_RUN_PATH=/var/run/laravel \
     LARAVEL_STORAGE_PATH=/var/run/laravel/storage \
     LARAVEL_BOOTSTRAP_CACHE_PATH=/var/run/laravel/bootstrap/cache
-
-WORKDIR /var/www/laravel
 
 # so that the volumes are writeable by apache
 RUN mkdir /usr/share/httpd/{.cache,.composer,.yarn} \
