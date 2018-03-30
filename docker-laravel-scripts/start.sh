@@ -35,4 +35,4 @@ rm -rf /run/httpd/* /tmp/httpd* /run/supervisord.pid
 # start processes
 echo "Starting the Supervisor daemon"
 
-exec /usr/bin/supervisord -c /etc/supervisord.d/supervisord.conf
+exec /usr/bin/supervisord -c /etc/supervisord.conf
