@@ -1,7 +1,6 @@
-FROM fedora:27
+FROM fedora:28
 
-# putting && on next line, because then it's more obvious that
-# the new line is a separate command
+# putting && on next line, because then it's more obvious that the new line is a separate command
 
 ENV LANG en_US.utf8
 
@@ -19,7 +18,7 @@ ENTRYPOINT ["/usr/share/docker-laravel-scripts/start.sh"]
 COPY etc/yum.repos.d/yarn.repo /etc/yum.repos.d/yarn.repo
 
 # install node 8 repo (nodesource-release package)
-RUN curl --silent --location https://rpm.nodesource.com/setup_9.x | bash -
+RUN curl --silent --location https://rpm.nodesource.com/setup_10.x | bash -
 
 # SSLProxyEngine requires mod_ssl to connect to a https endpoint
 # unzip is used to speed up composer
