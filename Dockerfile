@@ -8,10 +8,6 @@ ENV SHELL=/bin/bash \
 # because I use ll all the time
 COPY ./home/.bashrc /root/
 
-# the fedora base image is trying to enable this, but it's not working. we'll do it manually.
-# see: https://git.fedorahosted.org/cgit/spin-kickstarts.git/tree/fedora-docker-base.ks
-RUN echo 'tsflags=nodocs' >> /etc/dnf/dnf.conf
-
 EXPOSE 80
 
 WORKDIR /var/www/laravel
@@ -29,7 +25,10 @@ RUN curl --silent --location https://rpm.nodesource.com/setup_10.x | bash -
 # findutils provides find and xargs, used by start.sh.
 # gcc-c++ and make are for building native node addons
 # we create /run/php-fpm because php-fpm is supposed to but isn't
-RUN dnf -y upgrade --setopt=deltarpm=false \
+# the touch is per https://bugzilla.redhat.com/show_bug.cgi?id=1213602
+# it's needed for every dnf operation when the host is using overlayfs (like macs and GCR)
+RUN touch /var/lib/rpm/* \
+    && dnf -y upgrade --setopt=deltarpm=false \
     && dnf -y install \
         composer \
         findutils \
@@ -59,7 +58,7 @@ RUN dnf -y upgrade --setopt=deltarpm=false \
         unzip \
         vim \
         yarn \
-    && dnf clean packages \
+    && dnf clean all \
     && mkdir /run/php-fpm
 
 # Configure php
