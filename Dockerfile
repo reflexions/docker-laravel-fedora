@@ -28,6 +28,7 @@ RUN curl --silent --location https://rpm.nodesource.com/setup_9.x | bash -
 RUN dnf -y upgrade --setopt=deltarpm=false \
     && dnf -y install \
         dnf-plugins-core \
+        http://rpms.remirepo.net/fedora/remi-release-27.rpm \
     && dnf config-manager --set-enabled remi remi-php72 \
     && dnf -y remove \
         dnf-plugins-core \
