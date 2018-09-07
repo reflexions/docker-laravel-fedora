@@ -5,17 +5,24 @@ FROM fedora:28
 ENV SHELL=/bin/bash \
     LANG=en_US.utf8
 
+EXPOSE 80
+
+# install yarn repo
+RUN printf "\
+[yarn]\n\
+name=Yarn Repository\n\
+baseurl=https://dl.yarnpkg.com/rpm/\n\
+enabled=1\n\
+gpgcheck=1\n\
+gpgkey=https://dl.yarnpkg.com/rpm/pubkey.gpg\n\
+" > /etc/yum.repos.d/yarn.repo
+
 # because I use ll all the time
 COPY ./home/.bashrc /root/
-
-EXPOSE 80
 
 WORKDIR /var/www/laravel
 
 ENTRYPOINT ["/usr/share/docker-laravel-scripts/start.sh"]
-
-# install yarn repo
-COPY etc/yum.repos.d/yarn.repo /etc/yum.repos.d/yarn.repo
 
 # install node 8 repo (nodesource-release package)
 RUN curl --silent --location https://rpm.nodesource.com/setup_10.x | bash -
