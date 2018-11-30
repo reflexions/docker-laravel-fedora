@@ -1,4 +1,4 @@
-FROM fedora:28
+FROM fedora:29
 
 # putting && on next line, because then it's more obvious that the new line is a separate command
 
@@ -24,7 +24,7 @@ WORKDIR /var/www/laravel
 
 ENTRYPOINT ["/usr/share/docker-laravel-scripts/start.sh"]
 
-# install node 8 repo (nodesource-release package)
+# install node repo (nodesource-release package)
 RUN curl --silent --location https://rpm.nodesource.com/setup_10.x | bash -
 
 # SSLProxyEngine requires mod_ssl to connect to a https endpoint
