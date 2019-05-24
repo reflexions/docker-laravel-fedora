@@ -25,7 +25,7 @@ WORKDIR /var/www/laravel
 ENTRYPOINT ["/usr/share/docker-laravel-scripts/start.sh"]
 
 # install node repo (nodesource-release package)
-RUN curl --silent --location https://rpm.nodesource.com/setup_10.x | bash -
+RUN curl --silent --location https://rpm.nodesource.com/setup_12.x | bash -
 
 # SSLProxyEngine requires mod_ssl to connect to a https endpoint
 # unzip is used to speed up composer
