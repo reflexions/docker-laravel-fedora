@@ -1,4 +1,4 @@
-FROM fedora:29
+FROM fedora:30
 
 # putting && on next line, because then it's more obvious that the new line is a separate command
 
