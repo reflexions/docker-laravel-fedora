@@ -1,11 +1,29 @@
-FROM fedora:30
+# https://fedoramagazine.org/building-smaller-container-images/
+FROM registry.fedoraproject.org/fedora-minimal:30
 
 # putting && on next line, because then it's more obvious that the new line is a separate command
 
 ENV SHELL=/bin/bash \
-    LANG=en_US.utf8
+    LANG=en_US.utf8 \
+    DNF=/usr/bin/microdnf \
+    DELTA_RPM_DISABLE="" \
+    NO_DOCS="--nodocs" \
+    UPGRADE_CMD="update"
+
+# if using full dnf:
+# DELTA_RPM_DISABLE="--setopt=deltarpm=false"
+# UPGRADE_CMD="upgrade"
 
 EXPOSE 80
+
+# select node 12 dnf module
+RUN printf "\
+[nodejs]\n\
+name=nodejs\n\
+stream=12\n\
+profiles=\n\
+state=enabled\n\
+" > /etc/dnf/modules.d/nodejs.module
 
 # install yarn repo
 RUN printf "\
@@ -24,9 +42,6 @@ WORKDIR /var/www/laravel
 
 ENTRYPOINT ["/usr/share/docker-laravel-scripts/start.sh"]
 
-# install node repo (nodesource-release package)
-RUN curl --silent --location https://rpm.nodesource.com/setup_12.x | bash -
-
 # SSLProxyEngine requires mod_ssl to connect to a https endpoint
 # unzip is used to speed up composer
 # findutils provides find and xargs, used by start.sh.
@@ -35,8 +50,8 @@ RUN curl --silent --location https://rpm.nodesource.com/setup_12.x | bash -
 # the touch is per https://bugzilla.redhat.com/show_bug.cgi?id=1213602
 # it's needed for every dnf operation when the host is using overlayfs (like macs and GCR)
 RUN touch /var/lib/rpm/* \
-    && dnf -y upgrade --setopt=deltarpm=false \
-    && dnf -y install \
+    && ${DNF} -y ${UPGRADE_CMD} ${DELTA_RPM_DISABLE} ${NO_DOCS} \
+    && ${DNF} -y install ${NO_DOCS} \
         composer \
         findutils \
         gcc-c++ \
@@ -65,7 +80,7 @@ RUN touch /var/lib/rpm/* \
         unzip \
         vim \
         yarn \
-    && dnf clean all \
+    && ${DNF} clean all \
     && mkdir /run/php-fpm
 
 # Configure php
