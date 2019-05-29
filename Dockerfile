@@ -45,7 +45,7 @@ ENTRYPOINT ["/usr/share/docker-laravel-scripts/start.sh"]
 # SSLProxyEngine requires mod_ssl to connect to a https endpoint
 # unzip is used to speed up composer
 # findutils provides find and xargs, used by start.sh.
-# gcc-c++ and make are for building native node addons
+# gcc-c++ and make are for building native node addons => install these on a per-project basis
 # we create /run/php-fpm because php-fpm is supposed to but isn't
 # the touch is per https://bugzilla.redhat.com/show_bug.cgi?id=1213602
 # it's needed for every dnf operation when the host is using overlayfs (like macs and GCR)
@@ -54,12 +54,10 @@ RUN touch /var/lib/rpm/* \
     && ${DNF} -y install ${NO_DOCS} \
         composer \
         findutils \
-        gcc-c++ \
         git \
         httpd \
         hostname \
         ImageMagick \
-        make \
         mod_ssl \
         nodejs \
         php-fpm \
