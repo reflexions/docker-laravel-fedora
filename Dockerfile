@@ -55,8 +55,8 @@ RUN touch /var/lib/rpm/* \
         composer \
         findutils \
         git \
-        httpd \
         hostname \
+        httpd \
         ImageMagick \
         mod_ssl \
         nodejs \
@@ -75,6 +75,7 @@ RUN touch /var/lib/rpm/* \
         php-sodium \
         php-xml \
         supervisor \
+        tzdata \
         unzip \
         vim \
         yarn \
