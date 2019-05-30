@@ -14,6 +14,63 @@ ENV SHELL=/bin/bash \
 # DELTA_RPM_DISABLE="--setopt=deltarpm=false"
 # UPGRADE_CMD="upgrade"
 
+# the tzdata package is marked installed but the /usr/share/zoneinfo files are missing
+# microdnf doesn't do reinstall
+# install full dnf, reinstall tzdata, then cleanup dnf and its deps that we installed
+RUN touch /var/lib/rpm/* \
+    && ${DNF} install dnf \
+    && dnf reinstall -y tzdata \
+    && ${DNF} remove -y \
+         acl \
+         cryptsetup-libs \
+         dbus \
+         dbus-broker \
+         dbus-common \
+         dbus-libs \
+         deltarpm \
+         device-mapper \
+         device-mapper-libs \
+         diffutils \
+         dnf \
+         dnf-data \
+         elfutils-default-yama-scope \
+         elfutils-libs \
+         file-libs \
+         gdbm-libs \
+         ima-evm-utils \
+         iptables-libs \
+         kmod-libs \
+         libargon2 \
+         libcomps \
+         libevent \
+         libpcap-14 \
+         libreport-filesystem \
+         libseccomp \
+         libxkbcommon \
+         python-pip-wheel \
+         python-setuptools-wheel \
+         python3 \
+         python3-dnf \
+         python3-gpg \
+         python3-hawkey \
+         python3-libcomps \
+         python3-libdnf \
+         python3-libs \
+         python3-pip \
+         python3-rpm \
+         python3-setuptools \
+         python3-unbound \
+         qrencode-libs \
+         rpm-build-libs \
+         rpm-plugin-systemd-inhibit \
+         rpm-sign-libs \
+         systemd \
+         systemd-pam \
+         systemd-rpm-macros \
+         unbound-libs \
+         xkeyboard-config \
+    && ${DNF} clean all
+
 EXPOSE 80
 
 # select node 12 dnf module
