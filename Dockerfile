@@ -1,75 +1,15 @@
-# https://fedoramagazine.org/building-smaller-container-images/
-FROM registry.fedoraproject.org/fedora-minimal:30
+# not using fedora-minimal because it's more hassle than it's worth, e.g. tzdata is marked as installed but the files
+# aren't there, and microdnf doesn't support automatically adding gpg keys
+FROM fedora:30
 
 # putting && on next line, because then it's more obvious that the new line is a separate command
 
 ENV SHELL=/bin/bash \
     LANG=en_US.utf8 \
-    DNF=/usr/bin/microdnf \
-    DELTA_RPM_DISABLE="" \
+    DNF=/usr/bin/dnf \
+    DELTA_RPM_DISABLE="--setopt=deltarpm=false" \
     NO_DOCS="--nodocs" \
-    UPGRADE_CMD="update"
-
-# if using full dnf:
-# DELTA_RPM_DISABLE="--setopt=deltarpm=false"
-# UPGRADE_CMD="upgrade"
-
-# the tzdata package is marked installed but the /usr/share/zoneinfo files are missing
-# microdnf doesn't do reinstall
-# install full dnf, reinstall tzdata, then cleanup dnf and its deps that we installed
-RUN touch /var/lib/rpm/* \
-    && ${DNF} install dnf \
-    && dnf reinstall -y tzdata \
-    && ${DNF} remove -y \
-         acl \
-         cryptsetup-libs \
-         dbus \
-         dbus-broker \
-         dbus-common \
-         dbus-libs \
-         deltarpm \
-         device-mapper \
-         device-mapper-libs \
-         diffutils \
-         dnf \
-         dnf-data \
-         elfutils-default-yama-scope \
-         elfutils-libs \
-         file-libs \
-         gdbm-libs \
-         ima-evm-utils \
-         iptables-libs \
-         kmod-libs \
-         libargon2 \
-         libcomps \
-         libevent \
-         libpcap-14 \
-         libreport-filesystem \
-         libseccomp \
-         libxkbcommon \
-         python-pip-wheel \
-         python-setuptools-wheel \
-         python3 \
-         python3-dnf \
-         python3-gpg \
-         python3-hawkey \
-         python3-libcomps \
-         python3-libdnf \
-         python3-libs \
-         python3-pip \
-         python3-rpm \
-         python3-setuptools \
-         python3-unbound \
-         qrencode-libs \
-         rpm-build-libs \
-         rpm-plugin-systemd-inhibit \
-         rpm-sign-libs \
-         systemd \
-         systemd-pam \
-         systemd-rpm-macros \
-         unbound-libs \
-         xkeyboard-config \
-    && ${DNF} clean all
+    UPGRADE_CMD="upgrade"
 
 EXPOSE 80
 
@@ -99,11 +39,17 @@ WORKDIR /var/www/laravel
 
 ENTRYPOINT ["/usr/share/docker-laravel-scripts/start.sh"]
 
+
 # SSLProxyEngine requires mod_ssl to connect to a https endpoint
+
 # unzip is used to speed up composer
+
 # findutils provides find and xargs, used by start.sh.
+
 # gcc-c++ and make are for building native node addons => install these on a per-project basis
+
 # we create /run/php-fpm because php-fpm is supposed to but isn't
+
 # the touch is per https://bugzilla.redhat.com/show_bug.cgi?id=1213602
 # it's needed for every dnf operation when the host is using overlayfs (like macs and GCR)
 RUN touch /var/lib/rpm/* \
@@ -132,7 +78,6 @@ RUN touch /var/lib/rpm/* \
         php-sodium \
         php-xml \
         supervisor \
-        tzdata \
         unzip \
         vim \
         yarn \
