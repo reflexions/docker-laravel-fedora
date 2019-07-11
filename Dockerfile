@@ -95,16 +95,17 @@ COPY etc/httpd/conf.d/* /etc/httpd/conf.d/
 COPY etc/supervisord.conf /etc/supervisord.conf
 COPY etc/supervisord.d/* /etc/supervisord.d/
 
-# start and setup scripts
-COPY docker-laravel-scripts/* /usr/share/docker-laravel-scripts/
-
 # Default ENV
 # order is OS env => Dockerfile => .env
 # ------------------
 ENV LARAVEL_WWW_PATH=/var/www/laravel \
     LARAVEL_RUN_PATH=/var/run/laravel \
     LARAVEL_STORAGE_PATH=/var/run/laravel/storage \
-    LARAVEL_BOOTSTRAP_CACHE_PATH=/var/run/laravel/bootstrap/cache
+    LARAVEL_BOOTSTRAP_CACHE_PATH=/var/run/laravel/bootstrap/cache \
+    REFLEXIONS_SCRIPTS_PATH=/usr/share/docker-laravel-scripts
+
+# start and setup scripts
+COPY docker-laravel-scripts/* ${REFLEXIONS_SCRIPTS_PATH}/
 
 # so that the volumes are writeable by apache
 RUN mkdir /usr/share/httpd/{.cache,.composer,.yarn} \
