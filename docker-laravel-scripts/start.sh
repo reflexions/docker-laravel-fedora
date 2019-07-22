@@ -4,7 +4,7 @@ set -x #echo on
 # this script is the main entrypoint. It starts the app at container startup.
 
 if [ ! -f ${LARAVEL_RUN_PATH}/setup-completed ]; then
-    echo "You are required to run /usr/share/docker-laravel-scripts/setup.sh in your Dockerfile before the container starts"
+    echo "You are required to run /usr/share/docker-laravel-scripts/setup.sh in your Dockerfile-fedora before the container starts"
     echo "Also, if you haven't installed laravel yet, run /usr/share/docker-laravel-scripts/new-project.sh after setup.sh"
     exit 1
 fi

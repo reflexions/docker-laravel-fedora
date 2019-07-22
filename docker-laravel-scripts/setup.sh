@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-# This script sets up OS-level config. This script is run by Dockerfile before the Project dir is copied over,
+# This script sets up OS-level config. This script is run by Dockerfile-fedora before the Project dir is copied over,
 # so it doesn't expect app files to exist yet
-# It should be run by your project's Dockerfile before the container starts
+# It should be run by your project's Dockerfile-fedora before the container starts
 
 echo "-----------------------"
 echo "START setup.sh"
@@ -36,7 +36,7 @@ ssh-keyscan -H github.com | sort -u - ~/.ssh/known_hosts > ~/.ssh/tmp_hosts
 mv ~/.ssh/tmp_hosts ~/.ssh/known_hosts
 
 # configure composer if we have a token
-# GITHUB_TOKEN would be passed in as a build-arg or as an ENV var in the child Dockerfile calling setup.sh
+# GITHUB_TOKEN would be passed in as a build-arg or as an ENV var in the child Dockerfile-fedora calling setup.sh
 if [ -z "$GITHUB_TOKEN" ]; then
     composer config --global github-oauth.github.com $GITHUB_TOKEN
     composer config --global repo.packagist composer https://packagist.org

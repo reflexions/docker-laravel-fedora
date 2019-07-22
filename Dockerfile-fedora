@@ -96,7 +96,7 @@ COPY etc/supervisord.conf /etc/supervisord.conf
 COPY etc/supervisord.d/* /etc/supervisord.d/
 
 # Default ENV
-# order is OS env => Dockerfile => .env
+# order is OS env => Dockerfile-fedora => .env
 # ------------------
 ENV LARAVEL_WWW_PATH=/var/www/laravel \
     LARAVEL_RUN_PATH=/var/run/laravel \
@@ -115,7 +115,7 @@ VOLUME [ \
     "/usr/share/httpd/.cache", \
     "/usr/share/httpd/.composer", \
     "/usr/share/httpd/.yarn" \
-# We won't make these volumes now, but the extending Dockerfile may want to do this if
+# We won't make these volumes now, but the extending Dockerfile-fedora may want to do this if
 # baking those dirs into the image is undesirable.
 #    "/var/www/laravel", \
 #    "/var/run/laravel/storage"
