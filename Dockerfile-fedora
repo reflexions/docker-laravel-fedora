@@ -1,6 +1,6 @@
 # not using fedora-minimal because it's more hassle than it's worth, e.g. tzdata is marked as installed but the files
 # aren't there, and microdnf doesn't support automatically adding gpg keys
-FROM fedora:30
+FROM fedora:31
 
 # putting && on next line, because then it's more obvious that the new line is a separate command
 
