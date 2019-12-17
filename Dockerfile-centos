@@ -47,7 +47,7 @@ RUN touch /var/lib/rpm/* \
 		'dnf-command(config-manager)' \
 		https://rpms.remirepo.net/enterprise/remi-release-8.rpm \
 		https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm \
-	&& ${DNF} -y module install php:remi-7.3 \
+	&& ${DNF} -y module install php:remi-7.4 \
 	&& ${DNF} -y install ${NO_DOCS} \
 		findutils \
 		git \
@@ -78,6 +78,7 @@ RUN touch /var/lib/rpm/* \
 		unzip \
 		vim \
 		yarn \
+		zip \
 	&& ${DNF} clean all \
 	&& mkdir /run/php-fpm
 
