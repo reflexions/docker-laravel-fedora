@@ -73,6 +73,7 @@ RUN touch /var/lib/rpm/* \
 		php-soap \
 		php-sodium \
 		php-xml \
+		php-zip \
 		supervisor \
 		unzip \
 		vim \
@@ -81,9 +82,10 @@ RUN touch /var/lib/rpm/* \
 	&& mkdir /run/php-fpm
 
 
-# centos8 doesn't have supervisord yet
+# centos-8 didn't originally have a supervisor package. It does now. This is how you'd install it if it didn't:
+# Env var SUPERVISORD_BIN=/usr/local/bin/supervisord
 # http://supervisord.org/installing.html recommends pip
-RUN pip3 install supervisor
+#RUN pip3 install supervisor
 
 # centos8 doesn't have composer yet
 # per https://tecadmin.net/install-php-composer-on-centos/
@@ -109,7 +111,7 @@ ENV LARAVEL_WWW_PATH=/var/www/laravel \
 	LARAVEL_STORAGE_PATH=/var/run/laravel/storage \
 	LARAVEL_BOOTSTRAP_CACHE_PATH=/var/run/laravel/bootstrap/cache \
 	REFLEXIONS_SCRIPTS_PATH=/usr/share/docker-laravel-scripts \
-	SUPERVISORD_BIN=/usr/local/bin/supervisord
+	SUPERVISORD_BIN=/usr/bin/supervisord
 
 # start and setup scripts
 COPY docker-laravel-scripts/* ${REFLEXIONS_SCRIPTS_PATH}/
