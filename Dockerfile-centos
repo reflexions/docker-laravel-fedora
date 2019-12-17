@@ -88,7 +88,7 @@ RUN pip3 install supervisor
 # centos8 doesn't have composer yet
 # per https://tecadmin.net/install-php-composer-on-centos/
 RUN curl -sS https://getcomposer.org/installer | php \
-	&& mv /composer.phar /usr/local/bin/composer
+	&& mv /var/www/laravel/composer.phar /usr/local/bin/composer
 
 # Configure php
 COPY etc/php.d/php.ini /etc/php.d/local-overrides.ini
