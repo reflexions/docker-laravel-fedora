@@ -14,6 +14,11 @@ chown -R apache:apache ${LARAVEL_RUN_PATH}
 find ${LARAVEL_RUN_PATH} -type d -print0 | xargs -0 chmod 775
 find ${LARAVEL_RUN_PATH} -type f -print0 | xargs -0 chmod 664
 
+# make sure httpd and php-fpm log dir exists. Sometimes /var/log is a volume mount.
+mkdir -p \
+    /var/log/httpd \
+    /var/log/php-fpm
+
 cd ${LARAVEL_WWW_PATH}
 
 # todo: lock the db while migrations run to prevent other instances from running migrate simultaneously
@@ -35,4 +40,4 @@ rm -rf /run/httpd/* /tmp/httpd* /run/supervisord.pid
 # start processes
 echo "Starting the Supervisor daemon"
 
-exec /usr/bin/supervisord -c /etc/supervisord.conf
+exec "$SUPERVISORD_BIN" -c /etc/supervisord.conf
