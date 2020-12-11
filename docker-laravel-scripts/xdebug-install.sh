@@ -8,8 +8,8 @@
 touch /var/lib/rpm/*
 ${DNF} -y install \
     iproute \
-    php-pecl-xdebug
+    php-pecl-xdebug3
 ${DNF} clean all
 
-echo "xdebug.remote_enable=on" >> /etc/php.d/15-xdebug.ini
-echo "xdebug.remote_autostart=on" >> /etc/php.d/15-xdebug.ini
+echo "xdebug.mode=debug" >> /etc/php.d/15-xdebug.ini
+echo "xdebug.start_with_request=yes" >> /etc/php.d/15-xdebug.ini
