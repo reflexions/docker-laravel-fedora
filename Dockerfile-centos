@@ -47,7 +47,7 @@ RUN touch /var/lib/rpm/* \
 		'dnf-command(config-manager)' \
 		https://rpms.remirepo.net/enterprise/remi-release-8.rpm \
 		https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm \
-	&& ${DNF} -y module install php:remi-7.4 \
+	&& ${DNF} -y module install php:remi-8.0 \
 	&& ${DNF} -y install ${NO_DOCS} \
 		findutils \
 		git \
@@ -62,10 +62,13 @@ RUN touch /var/lib/rpm/* \
 		php-imap \
 		php-intl \
 		php-json \
+		php-lz4 \
+		php-maxminddb \
 		php-mbstring \
 		php-mysqlnd \
 		php-opcache \
 		php-pdo \
+		php-pecl-apcu \
 		php-pecl-imagick \
 		php-pecl-memcached \
 		php-pgsql \
