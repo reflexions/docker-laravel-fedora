@@ -1,4 +1,6 @@
-FROM centos:8 as everything
+# https://wiki.centos.org/FAQ/CentOSStream
+# https://quay.io/repository/centos/centos?tab=tags
+FROM quay.io/centos/centos:stream as everything
 
 # putting && on next line, because then it's more obvious that the new line is a separate command
 
@@ -52,6 +54,7 @@ RUN touch /var/lib/rpm/* \
 		findutils \
 		git \
 		hostname \
+		htop \
 		httpd \
 		ImageMagick \
 		mod_ssl \
@@ -84,6 +87,27 @@ RUN touch /var/lib/rpm/* \
 		zip \
 	&& ${DNF} clean all \
 	&& mkdir /run/php-fpm
+
+# example of how you could switch php versions in a project extending this image:
+
+## downgrade from php 8.0 to 7.4
+## get the list of currently installed php8 packages,
+##   it also strips out the "4" in php-lz4, so we add that back manually
+## use sed to strip out the verison numbers,
+## switch to the php 7.4 stream,
+## then reinstall the php packages
+## /run/php-fpm is removed when uninstalling php-fpm, and isn't added back when installing it
+#RUN dnf module repoquery --quiet --installed php:remi-8.0 | sed -r 's/^([^0-9]*).*/\1/' | sed -r 's/-$//' | grep -v php-lz > old-php.txt \
+#    && echo "php-lz4" >> old-php.txt \
+#    && cat old-php.txt \
+#    && cat old-php.txt | xargs dnf remove -y \
+#    && dnf -y module disable glpi \
+#    && dnf -y module disable composer \
+#    && dnf -y module disable php:remi-8.0 \
+#    && dnf -y module enable php:remi-7.4 \
+#    && cat old-php.txt | xargs dnf install -y \
+#    && mkdir -p /run/php-fpm \
+#    && rm old-php.txt
 
 
 # centos-8 didn't originally have a supervisor package. It does now. This is how you'd install it if it didn't:
