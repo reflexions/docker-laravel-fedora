@@ -8,3 +8,7 @@ tab_width=4
 [{*.yml,*.yaml}]
 indent_style = space
 indent_size = 2
+
+[Dockerfile-*]
+indent_style = tab
+indent_size = 4
