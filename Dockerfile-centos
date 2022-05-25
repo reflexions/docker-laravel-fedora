@@ -1,6 +1,6 @@
 # https://wiki.centos.org/FAQ/CentOSStream
 # https://quay.io/repository/centos/centos?tab=tags
-FROM quay.io/centos/centos:stream8 as everything
+FROM quay.io/centos/centos:stream9 as everything
 
 # putting && on next line, because then it's more obvious that the new line is a separate command
 
