@@ -66,7 +66,6 @@ RUN touch /var/lib/rpm/* \
 		httpd \
 		ImageMagick \
 		mod_ssl \
-		nodejs \
 		php \
 		php-fpm \
 		php-gd \
@@ -134,6 +133,9 @@ COPY etc/php-fpm.d/php-fpm.ini /etc/php-fpm.d/www.conf
 
 # configure apache
 COPY etc/httpd/conf.d/* /etc/httpd/conf.d/
+
+# make Listen use a variable, PORT
+RUN sed -i 's/Listen 80/Listen \${PORT}/' /etc/httpd/conf/httpd.conf
 
 # supervisord
 COPY etc/supervisord.conf /etc/supervisord.conf
