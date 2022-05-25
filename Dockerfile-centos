@@ -55,8 +55,8 @@ RUN touch /var/lib/rpm/* \
 	&& ${DNF} -y ${UPGRADE_CMD} ${DELTA_RPM_DISABLE} ${NO_DOCS} \
 	&& ${DNF} -y install \
 		'dnf-command(config-manager)' \
-		https://rpms.remirepo.net/enterprise/remi-release-8.rpm \
-		https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm \
+		https://rpms.remirepo.net/enterprise/remi-release-9.rpm \
+		https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm \
 	&& ${DNF} -y module install php:remi-8.1 \
 	&& ${DNF} -y install ${NO_DOCS} \
 		findutils \
