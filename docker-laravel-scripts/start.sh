@@ -19,7 +19,7 @@ mkdir -p \
     /var/log/httpd \
     /var/log/php-fpm
 
-cd ${LARAVEL_WWW_PATH}
+cd "${LARAVEL_WWW_PATH}" || exit 1
 
 # todo: lock the db while migrations run to prevent other instances from running migrate simultaneously
 # beanstalk's leader_only isn't a guarantee, so maybe we use a db lock instead somehow?
@@ -36,6 +36,9 @@ fi
 # context after restarting the container.  httpd won't start correctly
 # if it thinks it is already running.
 rm -rf /run/httpd/* /tmp/httpd* /run/supervisord.pid
+
+# make sure PORT is set. It's used in apache config
+export PORT=${PORT-80}
 
 # start processes
 echo "Starting the Supervisor daemon"
