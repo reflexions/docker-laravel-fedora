@@ -8,7 +8,7 @@ class DockerApplication extends \Illuminate\Foundation\Application
      *
      * @return string
      */
-    public function storagePath()
+    public function storagePath($path = '')
     {
     	return $this->storagePath ?: env('LARAVEL_STORAGE_PATH', $this->basePath.DIRECTORY_SEPARATOR.'storage');
     }

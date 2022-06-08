@@ -21,13 +21,13 @@ by [Reflexions](https://reflexions.co)
 version: '3'
 services:
   laravel:
-    image: reflexions/docker-laravel-fedora:26
+    image: reflexions/docker-laravel-fedora:9
     env_file: .env
     links:
       - database
 
   database:
-    image: postgres:9.6
+    image: postgres:13
     env_file: .env
     environment:
       LC_ALL: C.UTF-8
