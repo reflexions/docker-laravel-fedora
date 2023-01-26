@@ -21,8 +21,9 @@ steps:
         'buildx', 'build',
         '--push',
         '--file', 'Dockerfile-$_OS',
-        #'--platform', 'linux/amd64',
-        '--platform', 'linux/amd64,linux/arm64',
+        #'--platform', 'linux/amd64,linux/arm64',
+        # remi doesn't support arm64 for centos8, but does for 9
+        '--platform', '$_PLATFORMS',
         '-t', 'gcr.io/$PROJECT_ID/$_OS:$BRANCH_NAME',
         '.'
     ]
