@@ -14,12 +14,12 @@ ENV SHELL=/bin/bash \
 EXPOSE 80
 
 # minrate defaults to 1k/s, which means a slow mirror can slow the build to a near-stop
-# fastestmirror is something we're trying out. The docs say
-# "a metric is used to find the fastest available mirror" but
-# it's not clear what the pro/con are.
+# We tried out fastestmirror but it ended up being slower overall. There was extra time while it tried to determine
+# the fastest mirror, and the ranking was based on ping not bandwidth, so not that useful.
+# Instead we'll bump the minrate and decrease the timeout.
 # docs: https://dnf.readthedocs.io/en/latest/conf_ref.html
-RUN echo "minrate=100k" >> /etc/dnf/dnf.conf \
-	&& echo "fastestmirror=True" >> /etc/dnf/dnf.conf
+RUN echo "minrate=500k" >> /etc/dnf/dnf.conf \
+	&& echo "timeout=5" >> /etc/dnf/dnf.conf
 
 # install yarn repo
 RUN printf "\
