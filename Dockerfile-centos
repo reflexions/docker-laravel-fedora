@@ -129,7 +129,7 @@ RUN curl -sS https://getcomposer.org/installer | php \
 
 # Configure php
 COPY etc/php.d/php.ini /etc/php.d/local-overrides.ini
-COPY etc/php-fpm.d/php-fpm.ini /etc/php-fpm.d/www.conf
+COPY etc/php-fpm.d/www.conf /etc/php-fpm.d/www.conf
 
 # configure apache
 COPY etc/httpd/conf.d/* /etc/httpd/conf.d/
@@ -144,12 +144,12 @@ COPY etc/supervisord.d/* /etc/supervisord.d/
 # Default ENV
 # order is OS env => Dockerfile-fedora => .env
 # ------------------
-ENV LARAVEL_WWW_PATH=/var/www/laravel \
-	LARAVEL_RUN_PATH=/var/run/laravel \
-	LARAVEL_STORAGE_PATH=/var/run/laravel/storage \
-	LARAVEL_BOOTSTRAP_CACHE_PATH=/var/run/laravel/bootstrap/cache \
-	REFLEXIONS_SCRIPTS_PATH=/usr/share/docker-laravel-scripts \
-	SUPERVISORD_BIN=/usr/bin/supervisord
+ENV LARAVEL_WWW_PATH=/var/www/laravel
+ENV LARAVEL_RUN_PATH=/var/run/laravel
+ENV LARAVEL_STORAGE_PATH=/var/run/laravel/storage
+ENV LARAVEL_BOOTSTRAP_CACHE_PATH=/var/run/laravel/bootstrap/cache
+ENV REFLEXIONS_SCRIPTS_PATH=/usr/share/docker-laravel-scripts
+ENV SUPERVISORD_BIN=/usr/bin/supervisord
 
 # start and setup scripts
 COPY docker-laravel-scripts/* ${REFLEXIONS_SCRIPTS_PATH}/
