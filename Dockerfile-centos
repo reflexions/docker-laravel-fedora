@@ -18,7 +18,7 @@ EXPOSE 80
 # the fastest mirror, and the ranking was based on ping not bandwidth, so not that useful.
 # Instead we'll bump the minrate and decrease the timeout.
 # docs: https://dnf.readthedocs.io/en/latest/conf_ref.html
-RUN echo "minrate=500k" >> /etc/dnf/dnf.conf \
+RUN echo "minrate=200k" >> /etc/dnf/dnf.conf \
 	&& echo "timeout=5" >> /etc/dnf/dnf.conf
 
 # install yarn repo
