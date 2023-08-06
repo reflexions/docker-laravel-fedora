@@ -190,14 +190,21 @@ FROM with-node as with-gcloud
 RUN printf "\
 [google-cloud-sdk]\n\
 name=Google Cloud SDK\n\
-baseurl=https://packages.cloud.google.com/yum/repos/cloud-sdk-el${RHEL_VERSION}-$(uname -m)\n\
+baseurl=https://packages.cloud.google.com/yum/repos/cloud-sdk-el\$releasever-\$basearch\n\
 enabled=0\n\
 gpgcheck=1\n\
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg,https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg\n\
 " > /etc/yum.repos.d/google-cloud-sdk.repo
+
+# since google-cloud-sdk repo is so slow, we temporarily remove any dnf ratelimits
+RUN cp /etc/dnf/dnf.conf /etc/dnf/dnf.conf.bak
+RUN grep -vF 'minrate' /etc/dnf/dnf.conf > /etc/dnf/dnf.conf.tmp
+RUN grep -vF 'timeout' /etc/dnf/dnf.conf.tmp > /etc/dnf/dnf.conf
 
 # gcloud needs `which` during install and runtime
 RUN touch /var/lib/rpm/* \
 	&& dnf -y install --enablerepo=google-cloud-sdk \
 		google-cloud-sdk \
 	&& dnf clean all
+
+RUN mv -f /etc/dnf/dnf.conf.bak /etc/dnf/dnf.conf
