@@ -32,12 +32,13 @@ steps:
     name: 'us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1/docker-with-gcloud:latest'
     args: [
         'docker', 'buildx', 'build',
+        # https://docs.docker.com/engine/reference/commandline/buildx_build/
 
         # exports the built image to the local docker cache
         # "docker exporter does not currently support exporting manifest lists"
         #'--output=type=docker',
 
-        # since output type docker doesn't work, we have to push here
+        # since output type=docker doesn't work, we have to push here
         '--push',
 
         '--file', 'Dockerfile-${_OS}',
@@ -71,7 +72,7 @@ steps:
       # "docker exporter does not currently support exporting manifest lists"
       #'--output=type=docker',
 
-      # since output type docker doesn't work, we have to push here
+      # since output type=docker doesn't work, we have to push here
       '--push',
 
       '--file', 'Dockerfile-$_OS',
