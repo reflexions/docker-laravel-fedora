@@ -4,33 +4,50 @@
 
 
 steps:
-  - id: 'docker version'
+  - id: 'docker from registry version'
     name: 'docker'
     args: [ '--version' ]
 
-  - id: 'initialize-qemu'
+  - id: 'create-builder-image'
     name: 'docker'
+    args: [
+      'buildx', 'build',
+      '--file', 'Dockerfile-gcloud-docker',
+      '--output=type=docker',
+      '--tag', 'docker-with-gcloud',
+    ]
+
+  - id: 'built docker version'
+    name: 'docker-with-gcloud'
+    args: [ 'docker', '--version' ]
+
+  - id: 'initialize-qemu'
+    name: 'docker-with-gcloud'
     args: [ 'run', '--privileged', 'linuxkit/binfmt:v0.8' ]
 
   - id: 'create-builder'
-    name: 'docker'
+    name: 'docker-with-gcloud'
     args: [ 'buildx', 'create', '--name', 'mybuilder' ]
 
   - id: 'select-builder'
-    name: 'docker'
+    name: 'docker-with-gcloud'
     args: [ 'buildx', 'use', 'mybuilder' ]
 
   - id: 'show-target-build-platforms'
-    name: 'docker'
+    name: 'docker-with-gcloud'
     args: [ 'buildx', 'inspect', '--bootstrap' ]
 
   - id: 'build-and-push-php'
-    name: 'docker'
+    name: 'docker-with-gcloud'
     args: [
         'buildx', 'build',
 
         # exports the built image to the local docker cache
-        '--output=type=docker',
+        # "docker exporter does not currently support exporting manifest lists"
+        #'--output=type=docker',
+
+        # since output type docker doesn't work, we have to push here
+        '--push',
 
         '--file', 'Dockerfile-${_OS}',
 
@@ -53,9 +70,16 @@ steps:
   # we could build with-node, but the cubic projects use with-gcloud
 
   - id: 'build-and-push-php-with-node'
-    name: 'docker'
+    name: 'docker-with-gcloud'
     args: [
       'buildx', 'build',
+
+      # exports the built image to the local docker cache
+      # "docker exporter does not currently support exporting manifest lists"
+      #'--output=type=docker',
+
+      # since output type docker doesn't work, we have to push here
+      '--push',
 
       '--file', 'Dockerfile-$_OS',
 
@@ -74,16 +98,6 @@ steps:
 
       '.'
     ]
-
-images:
-  - 'gcr.io/$PROJECT_ID/${_OS}:$BRANCH_NAME'
-  - 'gcr.io/$PROJECT_ID/${_OS}:$COMMIT_SHA'
-  - 'us-central1-docker.pkg.dev/reflexions-laravel-base-us-central1/$PROJECT_ID/${_OS}:${BRANCH_NAME}'
-  - 'us-central1-docker.pkg.dev/reflexions-laravel-base-us-central1/$PROJECT_ID/${_OS}:${COMMIT_SHA}'
-  - 'gcr.io/$PROJECT_ID/${_OS}:$BRANCH_NAME-gcloud'
-  - 'gcr.io/$PROJECT_ID/${_OS}:$COMMIT_SHA-gcloud'
-  - 'us-central1-docker.pkg.dev/reflexions-laravel-base-us-central1/$PROJECT_ID/${_OS}-gcloud:${BRANCH_NAME}'
-  - 'us-central1-docker.pkg.dev/reflexions-laravel-base-us-central1/$PROJECT_ID/${_OS}-gcloud:${COMMIT_SHA}'
 
 options:
   env:

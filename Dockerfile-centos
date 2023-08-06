@@ -188,7 +188,7 @@ FROM with-node as with-gcloud
 RUN printf "\
 [google-cloud-sdk]\n\
 name=Google Cloud SDK\n\
-baseurl=https://packages.cloud.google.com/yum/repos/cloud-sdk-el${RHEL_VERSION}-$(uname -m)\n\
+baseurl=https://packages.cloud.google.com/yum/repos/cloud-sdk-el\$releasever-$(uname -m)\n\
 enabled=0\n\
 gpgcheck=1\n\
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg,https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg\n\

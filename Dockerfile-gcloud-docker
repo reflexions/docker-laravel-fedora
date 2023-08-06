@@ -1,0 +1,27 @@
+FROM quay.io/centos/centos:stream9
+
+RUN printf "\
+[google-cloud-sdk]\n\
+name=Google Cloud SDK\n\
+baseurl=https://packages.cloud.google.com/yum/repos/cloud-sdk-el\$releasever-$(uname -m)\n\
+enabled=1\n\
+gpgcheck=1\n\
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg,https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg\n\
+" > /etc/yum.repos.d/google-cloud-sdk.repo
+
+RUN printf "\
+[docker-ce-stable]\n\
+name=Docker CE Stable - \$basearch\n\
+baseurl=https://download.docker.com/linux/centos/\$releasever/\$basearch/stable\n\
+enabled=1\n\
+gpgcheck=1\n\
+gpgkey=https://download.docker.com/linux/centos/gpg\n\
+" > /etc/yum.repos.d/docker-ce.repo
+
+# gcloud needs `which` during install and runtime
+RUN touch /var/lib/rpm/* \
+	&& dnf -y install \
+		docker-ce-cli \
+		google-cloud-sdk
+
+RUN gcloud auth configure-docker us-central1-docker.pkg.dev
