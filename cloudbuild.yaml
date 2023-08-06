@@ -29,6 +29,8 @@ steps:
     args: [
         'buildx', 'build',
 
+        '--build-arg', 'BUILDKIT_INLINE_CACHE=1',
+
         '--file', 'Dockerfile-$_OS',
 
         #'--platform', 'linux/amd64,linux/arm64',
