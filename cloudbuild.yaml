@@ -45,38 +45,38 @@ steps:
 
   # we could build with-node, but the cubic projects use with-gcloud
 
-  - id: 'build-and-push-php-with-node'
-    name: 'gcr.io/cloud-builders/docker'
-    args: [
-      'buildx', 'build',
-
-      '--file', 'Dockerfile-$_OS',
-
-      #'--platform', 'linux/amd64,linux/arm64',
-      # remi doesn't support arm64 for centos8, but does for 9
-      '--platform', '$_PLATFORMS',
-
-      '--target', 'with-gcloud',
-
-      '--tag', 'gcr.io/$PROJECT_ID/${_OS}-gcloud:${BRANCH_NAME}',
-      '--tag', 'gcr.io/$PROJECT_ID/${_OS}-gcloud:${COMMIT_SHA}',
-
-      # artifact registry
-      '--tag', 'us-central1-docker.pkg.dev/reflexions-laravel-base-us-central1/$PROJECT_ID/${_OS}-gcloud:${BRANCH_NAME}',
-      '--tag', 'us-central1-docker.pkg.dev/reflexions-laravel-base-us-central1/$PROJECT_ID/${_OS}-gcloud:${COMMIT_SHA}',
-
-      '.'
-    ]
+#  - id: 'build-and-push-php-with-node'
+#    name: 'gcr.io/cloud-builders/docker'
+#    args: [
+#      'buildx', 'build',
+#
+#      '--file', 'Dockerfile-$_OS',
+#
+#      #'--platform', 'linux/amd64,linux/arm64',
+#      # remi doesn't support arm64 for centos8, but does for 9
+#      '--platform', '$_PLATFORMS',
+#
+#      '--target', 'with-gcloud',
+#
+#      '--tag', 'gcr.io/$PROJECT_ID/${_OS}-gcloud:${BRANCH_NAME}',
+#      '--tag', 'gcr.io/$PROJECT_ID/${_OS}-gcloud:${COMMIT_SHA}',
+#
+#      # artifact registry
+#      '--tag', 'us-central1-docker.pkg.dev/reflexions-laravel-base-us-central1/$PROJECT_ID/${_OS}-gcloud:${BRANCH_NAME}',
+#      '--tag', 'us-central1-docker.pkg.dev/reflexions-laravel-base-us-central1/$PROJECT_ID/${_OS}-gcloud:${COMMIT_SHA}',
+#
+#      '.'
+#    ]
 
 images:
   - 'gcr.io/$PROJECT_ID/${_OS}:$BRANCH_NAME'
-  - 'gcr.io/$PROJECT_ID/${_OS}:$COMMIT_SHA'
-  - 'us-central1-docker.pkg.dev/reflexions-laravel-base-us-central1/$PROJECT_ID/${_OS}:${BRANCH_NAME}'
-  - 'us-central1-docker.pkg.dev/reflexions-laravel-base-us-central1/$PROJECT_ID/${_OS}:${COMMIT_SHA}'
-  - 'gcr.io/$PROJECT_ID/${_OS}:$BRANCH_NAME-gcloud'
-  - 'gcr.io/$PROJECT_ID/${_OS}:$COMMIT_SHA-gcloud'
-  - 'us-central1-docker.pkg.dev/reflexions-laravel-base-us-central1/$PROJECT_ID/${_OS}-gcloud:${BRANCH_NAME}'
-  - 'us-central1-docker.pkg.dev/reflexions-laravel-base-us-central1/$PROJECT_ID/${_OS}-gcloud:${COMMIT_SHA}'
+#  - 'gcr.io/$PROJECT_ID/${_OS}:$COMMIT_SHA'
+#  - 'us-central1-docker.pkg.dev/reflexions-laravel-base-us-central1/$PROJECT_ID/${_OS}:${BRANCH_NAME}'
+#  - 'us-central1-docker.pkg.dev/reflexions-laravel-base-us-central1/$PROJECT_ID/${_OS}:${COMMIT_SHA}'
+#  - 'gcr.io/$PROJECT_ID/${_OS}:$BRANCH_NAME-gcloud'
+#  - 'gcr.io/$PROJECT_ID/${_OS}:$COMMIT_SHA-gcloud'
+#  - 'us-central1-docker.pkg.dev/reflexions-laravel-base-us-central1/$PROJECT_ID/${_OS}-gcloud:${BRANCH_NAME}'
+#  - 'us-central1-docker.pkg.dev/reflexions-laravel-base-us-central1/$PROJECT_ID/${_OS}-gcloud:${COMMIT_SHA}'
 
 options:
   env:
