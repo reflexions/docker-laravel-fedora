@@ -29,9 +29,10 @@ steps:
     args: [
         'buildx', 'build',
 
-        '--build-arg', 'BUILDKIT_INLINE_CACHE=1',
+        # exports the built image to the local docker cache
+        '--output=type=docker',
 
-        '--file', 'Dockerfile-$_OS',
+        '--file', 'Dockerfile-${_OS}',
 
         #'--platform', 'linux/amd64,linux/arm64',
         # remi doesn't support arm64 for centos8, but does for 9
