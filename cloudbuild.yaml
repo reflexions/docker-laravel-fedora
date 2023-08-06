@@ -5,27 +5,27 @@
 
 steps:
   - id: 'docker version'
-    name: 'gcr.io/cloud-builders/docker'
+    name: 'docker'
     args: [ '--version' ]
 
   - id: 'initialize-qemu'
-    name: 'gcr.io/cloud-builders/docker'
+    name: 'docker'
     args: [ 'run', '--privileged', 'linuxkit/binfmt:v0.8' ]
 
   - id: 'create-builder'
-    name: 'gcr.io/cloud-builders/docker'
+    name: 'docker'
     args: [ 'buildx', 'create', '--name', 'mybuilder' ]
 
   - id: 'select-builder'
-    name: 'gcr.io/cloud-builders/docker'
+    name: 'docker'
     args: [ 'buildx', 'use', 'mybuilder' ]
 
   - id: 'show-target-build-platforms'
-    name: 'gcr.io/cloud-builders/docker'
+    name: 'docker'
     args: [ 'buildx', 'inspect', '--bootstrap' ]
 
   - id: 'build-and-push-php'
-    name: 'gcr.io/cloud-builders/docker'
+    name: 'docker'
     args: [
         'buildx', 'build',
 
@@ -50,7 +50,7 @@ steps:
   # we could build with-node, but the cubic projects use with-gcloud
 
 #  - id: 'build-and-push-php-with-node'
-#    name: 'gcr.io/cloud-builders/docker'
+#    name: 'docker'
 #    args: [
 #      'buildx', 'build',
 #
