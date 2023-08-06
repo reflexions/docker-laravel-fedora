@@ -4,6 +4,10 @@
 
 
 steps:
+  - id: 'docker version'
+    name: 'gcr.io/cloud-builders/docker'
+    args: [ '--version' ]
+
   - id: 'initialize-qemu'
     name: 'gcr.io/cloud-builders/docker'
     args: [ 'run', '--privileged', 'linuxkit/binfmt:v0.8' ]
