@@ -12,7 +12,7 @@ to=" machineType: 'N1_HIGHCPU_32'"
 
 function restore_yaml() {
 	# put back the original machineType
-    sed -i "s/$to/$from/" cloudbuild.yaml
+	sed -i "s/$to/$from/" cloudbuild.yaml
 }
 
 # trap ctrl-c and call restore_yaml()
