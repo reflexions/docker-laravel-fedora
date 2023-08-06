@@ -1,35 +1,26 @@
 # https://wiki.centos.org/FAQ/CentOSStream
 # https://quay.io/repository/centos/centos?tab=tags
-FROM quay.io/centos/centos:stream as everything
+FROM quay.io/centos/centos:stream9 as php-base
 
 # putting && on next line, because then it's more obvious that the new line is a separate command
 
-ENV SHELL=/bin/bash \
-	LANG=en_US.utf8 \
-	DNF=/usr/bin/dnf \
-	DELTA_RPM_DISABLE="--setopt=deltarpm=false" \
-	NO_DOCS="--nodocs" \
-	UPGRADE_CMD="upgrade"
+ENV SHELL=/bin/bash
+ENV LANG=en_US.utf8
+ENV DNF=/usr/bin/dnf
+ENV DELTA_RPM_DISABLE="--setopt=deltarpm=false"
+ENV NO_DOCS="--nodocs"
+ENV UPGRADE_CMD="upgrade"
+ENV RHEL_VERSION="9"
 
 EXPOSE 80
 
 # minrate defaults to 1k/s, which means a slow mirror can slow the build to a near-stop
 # We tried out fastestmirror but it ended up being slower overall. There was extra time while it tried to determine
-# the fastest mirror, and the ranking was based on ping not bandwidth, so not that useful.
+# the fastest mirror, and the ranking was based on ping (not bandwidth), so it wasn't that useful.
 # Instead we'll bump the minrate and decrease the timeout.
 # docs: https://dnf.readthedocs.io/en/latest/conf_ref.html
 RUN echo "minrate=200k" >> /etc/dnf/dnf.conf \
 	&& echo "timeout=5" >> /etc/dnf/dnf.conf
-
-# install yarn repo
-RUN printf "\
-[yarn]\n\
-name=Yarn Repository\n\
-baseurl=https://dl.yarnpkg.com/rpm/\n\
-enabled=1\n\
-gpgcheck=1\n\
-gpgkey=https://dl.yarnpkg.com/rpm/pubkey.gpg\n\
-" > /etc/yum.repos.d/yarn.repo
 
 # because I use ll all the time
 COPY ./home/.bashrc /root/
@@ -39,7 +30,7 @@ WORKDIR /var/www/laravel
 ENTRYPOINT ["/usr/share/docker-laravel-scripts/start.sh"]
 
 
-# SSLProxyEngine requires mod_ssl to connect to a https endpoint
+# SSLProxyEngine requires mod_ssl to connect to an https endpoint
 
 # unzip is used to speed up composer
 
@@ -55,9 +46,9 @@ RUN touch /var/lib/rpm/* \
 	&& ${DNF} -y ${UPGRADE_CMD} ${DELTA_RPM_DISABLE} ${NO_DOCS} \
 	&& ${DNF} -y install \
 		'dnf-command(config-manager)' \
-		https://rpms.remirepo.net/enterprise/remi-release-8.rpm \
-		https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm \
-	&& ${DNF} -y module install php:remi-8.1 \
+		https://rpms.remirepo.net/enterprise/remi-release-${RHEL_VERSION}.rpm \
+		https://dl.fedoraproject.org/pub/epel/epel-release-latest-${RHEL_VERSION}.noarch.rpm \
+	&& ${DNF} -y module install php:remi-8.2 \
 	&& ${DNF} -y install ${NO_DOCS} \
 		findutils \
 		git \
@@ -90,12 +81,12 @@ RUN touch /var/lib/rpm/* \
 		supervisor \
 		unzip \
 		vim \
-		yarn \
 		zip \
 	&& ${DNF} clean all \
 	&& mkdir /run/php-fpm
 
 # example of how you could switch php versions in a project extending this image:
+# (better if we just have another variant of this build)
 
 ## downgrade from php 8.0 to 7.4
 ## get the list of currently installed php8 packages,
@@ -168,4 +159,43 @@ VOLUME [ \
 #	"/var/run/laravel/storage"
 ]
 
-FROM everything
+
+# =================================================
+FROM php-base as with-node
+
+# centos9 has nodejs 16 out of the box
+RUN curl --silent --location https://rpm.nodesource.com/setup_18.x | bash -
+
+RUN touch /var/lib/rpm/* \
+	&& dnf -y install \
+		nodejs \
+	&& dnf clean all
+
+# installing yarn from the dnf repo was crashing
+# https://github.com/nodejs/help/issues/3202
+# but installing through npm works
+# and this version is newer than the dnf repo
+RUN npm install -g yarn
+
+RUN adduser node --user-group --shell=/sbin/nologin
+
+
+
+# =================================================
+FROM with-node as with-gcloud
+
+# we leave google-cloud-sdk disabled because it's often slow/offline
+RUN printf "\
+[google-cloud-sdk]\n\
+name=Google Cloud SDK\n\
+baseurl=https://packages.cloud.google.com/yum/repos/cloud-sdk-el${RHEL_VERSION}-$(uname -m)\n\
+enabled=0\n\
+gpgcheck=1\n\
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg,https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg\n\
+" > /etc/yum.repos.d/google-cloud-sdk.repo
+
+# gcloud needs `which` during install and runtime
+RUN touch /var/lib/rpm/* \
+	&& dnf -y install --enablerepo=google-cloud-sdk \
+		google-cloud-sdk \
+	&& dnf clean all
