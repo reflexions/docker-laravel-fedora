@@ -22,6 +22,7 @@ gpgkey=https://download.docker.com/linux/centos/gpg\n\
 RUN touch /var/lib/rpm/* \
 	&& dnf -y install \
 		docker-ce-cli \
-		google-cloud-sdk
+		google-cloud-sdk \
+	&& dnf clean all
 
 RUN gcloud auth configure-docker us-central1-docker.pkg.dev
