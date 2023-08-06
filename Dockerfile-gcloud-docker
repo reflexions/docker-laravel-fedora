@@ -18,10 +18,12 @@ gpgcheck=1\n\
 gpgkey=https://download.docker.com/linux/centos/gpg\n\
 " > /etc/yum.repos.d/docker-ce.repo
 
-# gcloud needs `which` during install and runtime
+# without google-cloud-sdk, docker can't push to artifact registry using the gcloud docker helper
+# git installed for: "buildx: git was not found in the system. Current commit information was not captured by the build"
 RUN touch /var/lib/rpm/* \
 	&& dnf -y install \
 		docker-ce-cli \
+		git \
 		google-cloud-sdk \
 	&& dnf clean all
 
