@@ -20,6 +20,10 @@ steps:
     name: 'gcr.io/cloud-builders/docker'
     args: [ 'buildx', 'inspect', '--bootstrap' ]
 
+  - id: 'container-registry-auth'
+    name: 'gcr.io/cloud-builders/gcloud'
+    args: [ 'auth', 'configure-docker', 'us-central1-docker.pkg.dev' ]
+
   - id: 'build-and-push-php'
     name: 'gcr.io/cloud-builders/docker'
     args: [
