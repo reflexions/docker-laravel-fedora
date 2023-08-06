@@ -38,6 +38,10 @@ steps:
         '--tag', 'gcr.io/$PROJECT_ID/$_OS:$BRANCH_NAME',
         '--tag', 'gcr.io/$PROJECT_ID/$_OS:$COMMIT_SHA',
 
+        # artifact registry
+        '--tag', 'us-central1-docker.pkg.dev/reflexions-laravel-base-us-central1/$PROJECT_ID/$_OS:${BRANCH_NAME}',
+        '--tag', 'us-central1-docker.pkg.dev/reflexions-laravel-base-us-central1/$PROJECT_ID/$_OS:${COMMIT_SHA}',
+
         '.'
     ]
 
@@ -60,6 +64,10 @@ steps:
 
       '--tag', 'gcr.io/$PROJECT_ID/$_OS:${BRANCH_NAME}-gcloud',
       '--tag', 'gcr.io/$PROJECT_ID/$_OS:${COMMIT_SHA}-gcloud',
+
+      # artifact registry
+      '--tag', 'us-central1-docker.pkg.dev/reflexions-laravel-base-us-central1/$PROJECT_ID/$_OS:${BRANCH_NAME}-gcloud',
+      '--tag', 'us-central1-docker.pkg.dev/reflexions-laravel-base-us-central1/$PROJECT_ID/$_OS:${COMMIT_SHA}-gcloud',
 
       '.'
     ]
