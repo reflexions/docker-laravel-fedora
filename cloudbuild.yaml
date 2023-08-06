@@ -15,6 +15,7 @@ steps:
       '--file', 'Dockerfile-gcloud-docker',
       '--output=type=docker',
       '--tag', 'docker-with-gcloud',
+      '.'
     ]
 
   - id: 'built docker version'
