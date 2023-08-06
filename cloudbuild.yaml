@@ -4,39 +4,59 @@
 
 
 steps:
+  - id: 'docker from registry version'
+    name: 'docker'
+    args: [ '--version' ]
+
+  - id: 'built docker version'
+    name: 'us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1/docker-with-gcloud:latest'
+    args: [ 'docker', '--version' ]
+
   - id: 'initialize-qemu'
-    name: 'gcr.io/cloud-builders/docker'
-    args: [ 'run', '--privileged', 'linuxkit/binfmt:v0.8' ]
+    name: 'us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1/docker-with-gcloud:latest'
+    args: [ 'docker', 'run', '--privileged', 'linuxkit/binfmt:v0.8' ]
 
   - id: 'create-builder'
-    name: 'gcr.io/cloud-builders/docker'
-    args: [ 'buildx', 'create', '--name', 'mybuilder' ]
+    name: 'us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1/docker-with-gcloud:latest'
+    args: [ 'docker', 'buildx', 'create', '--name', 'mybuilder' ]
 
   - id: 'select-builder'
-    name: 'gcr.io/cloud-builders/docker'
-    args: [ 'buildx', 'use', 'mybuilder' ]
+    name: 'us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1/docker-with-gcloud:latest'
+    args: [ 'docker', 'buildx', 'use', 'mybuilder' ]
 
   - id: 'show-target-build-platforms'
-    name: 'gcr.io/cloud-builders/docker'
-    args: [ 'buildx', 'inspect', '--bootstrap' ]
+    name: 'us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1/docker-with-gcloud:latest'
+    args: [ 'docker', 'buildx', 'inspect', '--bootstrap' ]
 
   - id: 'build-and-push-php'
-    name: 'gcr.io/cloud-builders/docker'
+    name: 'us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1/docker-with-gcloud:latest'
     args: [
-        'buildx', 'build',
+        'docker', 'buildx', 'build',
+        # https://docs.docker.com/engine/reference/commandline/buildx_build/
 
+        # exports the built image to the local docker cache
+        # "docker exporter does not currently support exporting manifest lists"
+        #'--output=type=docker',
+
+        # since output type=docker doesn't work, we have to push here
         '--push',
 
-        '--file', 'Dockerfile-$_OS',
+        '--file', 'Dockerfile-${_OS}',
 
         #'--platform', 'linux/amd64,linux/arm64',
         # remi doesn't support arm64 for centos8, but does for 9
         '--platform', '$_PLATFORMS',
 
+        '--squash',
+
         '--target', 'php-base',
 
-        '--tag', 'gcr.io/$PROJECT_ID/$_OS:$BRANCH_NAME',
-        '--tag', 'gcr.io/$PROJECT_ID/$_OS:$COMMIT_SHA',
+        '--tag', 'gcr.io/$PROJECT_ID/${_OS}:$BRANCH_NAME',
+        '--tag', 'gcr.io/$PROJECT_ID/${_OS}:$COMMIT_SHA',
+
+        # artifact registry
+        '--tag', 'us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1/${_OS}:${BRANCH_NAME}',
+        '--tag', 'us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1/${_OS}:${COMMIT_SHA}',
 
         '.'
     ]
@@ -44,10 +64,15 @@ steps:
   # we could build with-node, but the cubic projects use with-gcloud
 
   - id: 'build-and-push-php-with-node'
-    name: 'gcr.io/cloud-builders/docker'
+    name: 'us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1/docker-with-gcloud:latest'
     args: [
-      'buildx', 'build',
+      'docker', 'buildx', 'build',
 
+      # exports the built image to the local docker cache
+      # "docker exporter does not currently support exporting manifest lists"
+      #'--output=type=docker',
+
+      # since output type=docker doesn't work, we have to push here
       '--push',
 
       '--file', 'Dockerfile-$_OS',
@@ -56,18 +81,21 @@ steps:
       # remi doesn't support arm64 for centos8, but does for 9
       '--platform', '$_PLATFORMS',
 
+      '--squash',
+
       '--target', 'with-gcloud',
 
-      '--tag', 'gcr.io/$PROJECT_ID/$_OS:${BRANCH_NAME}-gcloud',
-      '--tag', 'gcr.io/$PROJECT_ID/$_OS:${COMMIT_SHA}-gcloud',
+      '--tag', 'gcr.io/$PROJECT_ID/${_OS}-gcloud:${BRANCH_NAME}',
+      '--tag', 'gcr.io/$PROJECT_ID/${_OS}-gcloud:${COMMIT_SHA}',
+
+      # artifact registry
+      '--tag', 'us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1/${_OS}-gcloud:${BRANCH_NAME}',
+      '--tag', 'us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1/${_OS}-gcloud:${COMMIT_SHA}',
 
       '.'
     ]
 
 options:
-  env:
-    - 'DOCKER_CLI_EXPERIMENTAL=enabled'
-
   # https://cloud.google.com/cloud-build/docs/api/reference/rest/v1/projects.builds#machinetype
   # unspecified, N1_HIGHCPU_8, N1_HIGHCPU_32, E2_HIGHCPU_8, E2_HIGHCPU_32
   machineType: 'E2_HIGHCPU_32'
