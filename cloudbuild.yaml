@@ -20,7 +20,7 @@ steps:
     name: 'gcr.io/cloud-builders/docker'
     args: [ 'buildx', 'inspect', '--bootstrap' ]
 
-  - id: 'build-and-push'
+  - id: 'build-and-push-php'
     name: 'gcr.io/cloud-builders/docker'
     args: [
         'buildx', 'build',
@@ -33,11 +33,37 @@ steps:
         # remi doesn't support arm64 for centos8, but does for 9
         '--platform', '$_PLATFORMS',
 
-        '-t', 'gcr.io/$PROJECT_ID/$_OS:$BRANCH_NAME',
-        '-t', 'gcr.io/$PROJECT_ID/$_OS:$COMMIT_SHA',
+        '--target', 'php-base',
+
+        '--tag', 'gcr.io/$PROJECT_ID/$_OS:$BRANCH_NAME',
+        '--tag', 'gcr.io/$PROJECT_ID/$_OS:$COMMIT_SHA',
 
         '.'
     ]
+
+  # we could build with-node, but the cubic projects use with-gcloud
+
+  - id: 'build-and-push-php-with-node'
+    name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'buildx', 'build',
+
+      '--push',
+
+      '--file', 'Dockerfile-$_OS',
+
+      #'--platform', 'linux/amd64,linux/arm64',
+      # remi doesn't support arm64 for centos8, but does for 9
+      '--platform', '$_PLATFORMS',
+
+      '--target', 'with-gcloud',
+
+      '--tag', 'gcr.io/$PROJECT_ID/$_OS:${BRANCH_NAME}-gcloud',
+      '--tag', 'gcr.io/$PROJECT_ID/$_OS:${COMMIT_SHA}-gcloud',
+
+      '.'
+    ]
+
 options:
   env:
     - 'DOCKER_CLI_EXPERIMENTAL=enabled'
