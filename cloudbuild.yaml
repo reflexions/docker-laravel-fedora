@@ -46,11 +46,6 @@ steps:
 
         '.'
     ]
-    images:
-      - 'gcr.io/$PROJECT_ID/${_OS}:$BRANCH_NAME'
-      - 'gcr.io/$PROJECT_ID/${_OS}:$COMMIT_SHA'
-      - 'us-central1-docker.pkg.dev/reflexions-laravel-base-us-central1/$PROJECT_ID/${_OS}:${BRANCH_NAME}'
-      - 'us-central1-docker.pkg.dev/reflexions-laravel-base-us-central1/$PROJECT_ID/${_OS}:${COMMIT_SHA}'
 
   # we could build with-node, but the cubic projects use with-gcloud
 
@@ -76,11 +71,16 @@ steps:
 
       '.'
     ]
-    images:
-      - 'gcr.io/$PROJECT_ID/${_OS}:$BRANCH_NAME-gcloud'
-      - 'gcr.io/$PROJECT_ID/${_OS}:$COMMIT_SHA-gcloud'
-      - 'us-central1-docker.pkg.dev/reflexions-laravel-base-us-central1/$PROJECT_ID/${_OS}-gcloud:${BRANCH_NAME}'
-      - 'us-central1-docker.pkg.dev/reflexions-laravel-base-us-central1/$PROJECT_ID/${_OS}-gcloud:${COMMIT_SHA}'
+
+images:
+  - 'gcr.io/$PROJECT_ID/${_OS}:$BRANCH_NAME'
+  - 'gcr.io/$PROJECT_ID/${_OS}:$COMMIT_SHA'
+  - 'us-central1-docker.pkg.dev/reflexions-laravel-base-us-central1/$PROJECT_ID/${_OS}:${BRANCH_NAME}'
+  - 'us-central1-docker.pkg.dev/reflexions-laravel-base-us-central1/$PROJECT_ID/${_OS}:${COMMIT_SHA}'
+  - 'gcr.io/$PROJECT_ID/${_OS}:$BRANCH_NAME-gcloud'
+  - 'gcr.io/$PROJECT_ID/${_OS}:$COMMIT_SHA-gcloud'
+  - 'us-central1-docker.pkg.dev/reflexions-laravel-base-us-central1/$PROJECT_ID/${_OS}-gcloud:${BRANCH_NAME}'
+  - 'us-central1-docker.pkg.dev/reflexions-laravel-base-us-central1/$PROJECT_ID/${_OS}-gcloud:${COMMIT_SHA}'
 
 options:
   env:
