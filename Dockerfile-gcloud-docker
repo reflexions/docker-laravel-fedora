@@ -24,7 +24,7 @@ RUN touch /var/lib/rpm/* \
 	&& dnf -y install \
 		docker-ce-cli \
 		git \
-		google-cloud-sdk \
+		google-cloud-cli \
 	&& dnf clean all
 
 RUN gcloud auth configure-docker us-central1-docker.pkg.dev

@@ -63,7 +63,7 @@ steps:
 
   # we could build with-node, but the cubic projects use with-gcloud
 
-  - id: 'build-and-push-php-with-node'
+  - id: 'build-and-push-php-with-gcloud'
     name: 'us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1/docker-with-gcloud:latest'
     args: [
       'docker', 'buildx', 'build',
