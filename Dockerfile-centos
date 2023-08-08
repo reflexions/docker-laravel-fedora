@@ -3,7 +3,7 @@
 FROM quay.io/centos/centos:stream9 as php-base
 
 # putting && on next line, because then it's more obvious that the new line is a separate command
-
+# defining DNF in case we ever want to give something like fedora-minimal another shot
 ENV SHELL=/bin/bash
 ENV LANG=en_US.utf8
 ENV DNF=/usr/bin/dnf
@@ -135,7 +135,7 @@ COPY etc/supervisord.conf /etc/supervisord.conf
 COPY etc/supervisord.d/* /etc/supervisord.d/
 
 # Default ENV
-# order is OS env => Dockerfile-fedora => .env
+# order is OS env => Dockerfile => .env
 # ------------------
 ENV LARAVEL_WWW_PATH=/var/www/laravel
 ENV LARAVEL_RUN_PATH=/var/run/laravel
@@ -198,13 +198,13 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg,https://packages.cl
 
 # since google-cloud-sdk repo is so slow, we temporarily remove any dnf ratelimits
 RUN cp /etc/dnf/dnf.conf /etc/dnf/dnf.conf.bak
-RUN grep -vF 'minrate' /etc/dnf/dnf.conf > /etc/dnf/dnf.conf.tmp
-RUN grep -vF 'timeout' /etc/dnf/dnf.conf.tmp > /etc/dnf/dnf.conf
+RUN grep -vF 'minrate=' /etc/dnf/dnf.conf > /etc/dnf/dnf.conf.tmp
+RUN grep -vF 'timeout=' /etc/dnf/dnf.conf.tmp > /etc/dnf/dnf.conf
 
 # gcloud needs `which` during install and runtime
 RUN touch /var/lib/rpm/* \
 	&& dnf -y install --enablerepo=google-cloud-sdk \
-		google-cloud-sdk \
+		google-cloud-cli \
 	&& dnf clean all
 
 RUN mv -f /etc/dnf/dnf.conf.bak /etc/dnf/dnf.conf
