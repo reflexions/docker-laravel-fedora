@@ -28,6 +28,7 @@ steps:
     name: 'us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1/docker-with-gcloud:latest'
     args: [ 'docker', 'buildx', 'inspect', '--bootstrap' ]
 
+  # unused?
   - id: 'build-and-push-php'
     name: 'us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1/docker-with-gcloud:latest'
     args: [
@@ -61,9 +62,42 @@ steps:
         '.'
     ]
 
-  # we could build with-node, but the cubic projects use with-gcloud
+  # jbf uses:
+  - id: 'build-and-push-php-with-node'
+    name: 'us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1/docker-with-gcloud:latest'
+    args: [
+      'docker', 'buildx', 'build',
+      # https://docs.docker.com/engine/reference/commandline/buildx_build/
 
-  - id: 'build-and-push-php-with-gcloud'
+      # exports the built image to the local docker cache
+      # "docker exporter does not currently support exporting manifest lists"
+      #'--output=type=docker',
+
+      # since output type=docker doesn't work, we have to push here
+      '--push',
+
+      '--file', 'Dockerfile-${_OS}',
+
+      #'--platform', 'linux/amd64,linux/arm64',
+      # remi doesn't support arm64 for centos8, but does for 9
+      '--platform', '$_PLATFORMS',
+
+      '--squash',
+
+      '--target', 'with-node',
+
+      '--tag', 'gcr.io/$PROJECT_ID/${_OS}-node:$BRANCH_NAME',
+      '--tag', 'gcr.io/$PROJECT_ID/${_OS}-node:$COMMIT_SHA',
+
+      # artifact registry
+      '--tag', 'us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1/${_OS}-node:${BRANCH_NAME}',
+      '--tag', 'us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1/${_OS}-node:${COMMIT_SHA}',
+
+      '.'
+    ]
+
+  # cubic projects use with-gcloud
+  - id: 'build-and-push-php-with-node-and-gcloud'
     name: 'us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1/docker-with-gcloud:latest'
     args: [
       'docker', 'buildx', 'build',
@@ -75,7 +109,7 @@ steps:
       # since output type=docker doesn't work, we have to push here
       '--push',
 
-      '--file', 'Dockerfile-$_OS',
+      '--file', 'Dockerfile-${_OS}',
 
       #'--platform', 'linux/amd64,linux/arm64',
       # remi doesn't support arm64 for centos8, but does for 9
