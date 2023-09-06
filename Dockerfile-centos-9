@@ -41,6 +41,7 @@ WORKDIR /var/www/laravel
 
 ENTRYPOINT ["/usr/share/docker-laravel-scripts/start.sh"]
 
+ARG PHP_VERSION
 
 # SSLProxyEngine requires mod_ssl to connect to an https endpoint
 
@@ -62,7 +63,7 @@ RUN touch /var/lib/rpm/* \
 		'dnf-command(config-manager)' \
 		https://rpms.remirepo.net/enterprise/remi-release-${RHEL_VERSION}.rpm \
 		https://dl.fedoraproject.org/pub/epel/epel-release-latest-${RHEL_VERSION}.noarch.rpm \
-	&& ${DNF} -y module install php:remi-8.2 \
+	&& ${DNF} -y module install ${NO_DOCS} php:remi-${PHP_VERSION} \
 	&& ${DNF} -y install ${NO_DOCS} \
 		findutils \
 		git \
@@ -127,10 +128,10 @@ RUN touch /var/lib/rpm/* \
 # http://supervisord.org/installing.html recommends pip
 #RUN pip3 install supervisor
 
-# centos8 doesn't have composer yet
+# we'll get the latest composer ourselves instead of using the centos package
 # per https://tecadmin.net/install-php-composer-on-centos/
 RUN curl -sS https://getcomposer.org/installer | php \
-	&& mv /var/www/laravel/composer.phar /usr/local/bin/composer
+	&& mv ${PROJECT_ROOT}/composer.phar /usr/local/bin/composer
 
 # Configure php
 COPY etc/php.d/php.ini /etc/php.d/local-overrides.ini
@@ -166,6 +167,8 @@ VOLUME [ \
 
 # =================================================
 FROM php-base as with-node
+
+ARG NODE_MAJOR_VERSION
 
 # centos9 has nodejs 16 out of the box
 RUN touch /var/lib/rpm/* \

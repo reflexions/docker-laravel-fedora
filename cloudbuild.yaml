@@ -28,106 +28,62 @@ steps:
     name: 'us-central1-docker.pkg.dev/docker-with-gcloud-395321/docker-with-gcloud/docker-with-gcloud:latest'
     args: [ 'docker', 'buildx', 'inspect', '--bootstrap' ]
 
-  # unused?
-  - id: 'build-and-push-php'
+  - id: 'build-and-push'
     name: 'us-central1-docker.pkg.dev/docker-with-gcloud-395321/docker-with-gcloud/docker-with-gcloud:latest'
-    args: [
-        'docker', 'buildx', 'build',
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        # replace "." with "-"
+        php_version_for_image=$(echo "${_PHP_VERSION}" | sed "s/\./-/")
+        
+        target=php-base
+        image_suffix=php-${php_version_for_image}
+        
+        if [[ "$_NODE_MAJOR_VERSION" != "" ]]; then
+          image_suffix="${image_suffix}-node-${_NODE_MAJOR_VERSION}"
+          target=with-node
+        fi
+        
+        if [[ "$_WITH_GCLOUD" == "1" ]]; then
+          image_suffix="${image_suffix}-gcloud"
+          target=with-gcloud
+        fi
+        
+        if [[ "$_SQUASHED" == "1" ]]; then
+          image_suffix="${image_suffix}-squashed"
+          target="${target}"-squashed
+        fi
+        
+        echo "php: ${_PHP_VERSION}"
+        echo "node: ${_NODE_MAJOR_VERSION}"
+        echo "gcloud: ${_WITH_GCLOUD}"
+        echo "squashed: ${_SQUASHED}"
+        echo "target: ${target}"
+        
         # https://docs.docker.com/engine/reference/commandline/buildx_build/
-
+        
+        #--output=type=docker
         # exports the built image to the local docker cache
-        # "docker exporter does not currently support exporting manifest lists"
-        #'--output=type=docker',
-
-        # since output type=docker doesn't work, we have to push here
-        '--push',
-
-        '--file', 'Dockerfile-${_OS}',
-
-        #'--platform', 'linux/amd64,linux/arm64',
-        # remi doesn't support arm64 for centos8, but does for 9
-        '--platform', '$_PLATFORMS',
-
-        '--squash',
-
-        '--target', 'php-base',
-
-        '--tag', 'gcr.io/$PROJECT_ID/${_OS}:$BRANCH_NAME',
-        '--tag', 'gcr.io/$PROJECT_ID/${_OS}:$COMMIT_SHA',
-
-        # artifact registry
-        '--tag', 'us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1/${_OS}:${BRANCH_NAME}',
-        '--tag', 'us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1/${_OS}:${COMMIT_SHA}',
-
-        '.'
-    ]
-
-  # jbf uses:
-  - id: 'build-and-push-php-with-node'
-    name: 'us-central1-docker.pkg.dev/docker-with-gcloud-395321/docker-with-gcloud/docker-with-gcloud:latest'
-    args: [
-      'docker', 'buildx', 'build',
-      # https://docs.docker.com/engine/reference/commandline/buildx_build/
-
-      # exports the built image to the local docker cache
-      # "docker exporter does not currently support exporting manifest lists"
-      #'--output=type=docker',
-
-      # since output type=docker doesn't work, we have to push here
-      '--push',
-
-      '--file', 'Dockerfile-${_OS}',
-
-      #'--platform', 'linux/amd64,linux/arm64',
-      # remi doesn't support arm64 for centos8, but does for 9
-      '--platform', '$_PLATFORMS',
-
-      '--squash',
-
-      '--target', 'with-node',
-
-      '--tag', 'gcr.io/$PROJECT_ID/${_OS}-node:$BRANCH_NAME',
-      '--tag', 'gcr.io/$PROJECT_ID/${_OS}-node:$COMMIT_SHA',
-
-      # artifact registry
-      '--tag', 'us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1/${_OS}-node:${BRANCH_NAME}',
-      '--tag', 'us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1/${_OS}-node:${COMMIT_SHA}',
-
-      '.'
-    ]
-
-  # cubic projects use with-gcloud
-  - id: 'build-and-push-php-with-node-and-gcloud'
-    name: 'us-central1-docker.pkg.dev/docker-with-gcloud-395321/docker-with-gcloud/docker-with-gcloud:latest'
-    args: [
-      'docker', 'buildx', 'build',
-
-      # exports the built image to the local docker cache
-      # "docker exporter does not currently support exporting manifest lists"
-      #'--output=type=docker',
-
-      # since output type=docker doesn't work, we have to push here
-      '--push',
-
-      '--file', 'Dockerfile-${_OS}',
-
-      #'--platform', 'linux/amd64,linux/arm64',
-      # remi doesn't support arm64 for centos8, but does for 9
-      '--platform', '$_PLATFORMS',
-
-      '--squash',
-
-      '--target', 'with-gcloud',
-
-      '--tag', 'gcr.io/$PROJECT_ID/${_OS}-gcloud:${BRANCH_NAME}',
-      '--tag', 'gcr.io/$PROJECT_ID/${_OS}-gcloud:${COMMIT_SHA}',
-
-      # artifact registry
-      '--tag', 'us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1/${_OS}-gcloud:${BRANCH_NAME}',
-      '--tag', 'us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1/${_OS}-gcloud:${COMMIT_SHA}',
-
-      '.'
-    ]
+        # but with multiarch build: "docker exporter does not currently support exporting manifest lists"
+        # since output type=docker doesn't work, we have to --push
+        
+        # remi only supports arm64 platform for centos >= 9
+        
+        # us-central1-docker.pkg.dev is artifact registry
+        
+        set -x #echo on
+        
+        docker buildx build \
+          --push \
+          --platform "$_PLATFORMS" \
+          --file "Dockerfile-${_OS}" \
+          --target "$target" \
+          --build-arg PHP_VERSION=${_PHP_VERSION} \
+          --build-arg NODE_MAJOR_VERSION=${_NODE_MAJOR_VERSION} \
+          --tag us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1/${_OS}/${image_suffix}:${BRANCH_NAME} \
+          --tag us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1/${_OS}/${image_suffix}:${COMMIT_SHA} \
+          .
 
 options:
   # https://cloud.google.com/cloud-build/docs/api/reference/rest/v1/projects.builds#machinetype

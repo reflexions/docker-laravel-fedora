@@ -24,10 +24,14 @@ gcloud config set project reflexions-docker-laravel
 time cloud-build-local \
 	-bind-mount-source \
 	--dryrun=false \
-	--substitutions _OS=centos,\
+	--substitutions BRANCH_NAME="$(git rev-parse --abbrev-ref HEAD)",\
+COMMIT_SHA="$(git rev-parse HEAD)",\
 _PLATFORMS=linux/amd64,\
-BRANCH_NAME="$(git rev-parse --abbrev-ref HEAD)",\
-COMMIT_SHA="$(git rev-parse HEAD)" \
+_OS=centos-9,\
+_PHP_VERSION=8.2,\
+_NODE_MAJOR_VERSION=18,\
+_WITH_GCLOUD=1,\
+_SQUASHED=0 \
 	.
 
 # can't get it to accept
