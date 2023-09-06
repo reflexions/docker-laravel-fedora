@@ -12,6 +12,18 @@ ENV NO_DOCS="--nodocs"
 ENV UPGRADE_CMD="upgrade"
 ENV RHEL_VERSION="9"
 
+# Default ENV
+# order is OS env => Dockerfile => .env
+# ------------------
+ENV PROJECT_ROOT=/var/www/laravel
+ENV LARAVEL_WWW_PATH=/var/www/laravel
+ENV LARAVEL_RUN_PATH=/var/run/laravel
+ENV LARAVEL_STORAGE_PATH=/var/run/laravel/storage
+ENV LARAVEL_BOOTSTRAP_CACHE_PATH=/var/run/laravel/bootstrap/cache
+ENV REFLEXIONS_SCRIPTS_PATH=/usr/share/docker-laravel-scripts
+ENV SUPERVISORD_BIN=/usr/bin/supervisord
+ENV PORT=80
+
 EXPOSE 80
 
 # minrate defaults to 1k/s, which means a slow mirror can slow the build to a near-stop
@@ -42,8 +54,10 @@ ENTRYPOINT ["/usr/share/docker-laravel-scripts/start.sh"]
 
 # the touch is per https://bugzilla.redhat.com/show_bug.cgi?id=1213602
 # it's needed for every dnf operation when the host is using overlayfs (like macs and GCR)
+
 RUN touch /var/lib/rpm/* \
 	&& ${DNF} -y ${UPGRADE_CMD} ${DELTA_RPM_DISABLE} ${NO_DOCS} \
+	&& ${DNF} -y reinstall tzdata \
 	&& ${DNF} -y install \
 		'dnf-command(config-manager)' \
 		https://rpms.remirepo.net/enterprise/remi-release-${RHEL_VERSION}.rpm \
@@ -132,16 +146,6 @@ RUN sed -i 's/Listen 80/Listen \${PORT}/' /etc/httpd/conf/httpd.conf
 COPY etc/supervisord.conf /etc/supervisord.conf
 COPY etc/supervisord.d/* /etc/supervisord.d/
 
-# Default ENV
-# order is OS env => Dockerfile => .env
-# ------------------
-ENV LARAVEL_WWW_PATH=/var/www/laravel
-ENV LARAVEL_RUN_PATH=/var/run/laravel
-ENV LARAVEL_STORAGE_PATH=/var/run/laravel/storage
-ENV LARAVEL_BOOTSTRAP_CACHE_PATH=/var/run/laravel/bootstrap/cache
-ENV REFLEXIONS_SCRIPTS_PATH=/usr/share/docker-laravel-scripts
-ENV SUPERVISORD_BIN=/usr/bin/supervisord
-
 # start and setup scripts
 COPY docker-laravel-scripts/* ${REFLEXIONS_SCRIPTS_PATH}/
 
@@ -164,12 +168,20 @@ VOLUME [ \
 FROM php-base as with-node
 
 # centos9 has nodejs 16 out of the box
-RUN curl --silent --location https://rpm.nodesource.com/setup_18.x | bash -
-
 RUN touch /var/lib/rpm/* \
+	&& dnf -y module install ${NO_DOCS} \
+		nodejs:${NODE_MAJOR_VERSION}/common \
 	&& dnf -y install \
-		nodejs \
+		nodejs-full-i18n \
 	&& dnf clean all
+
+# alternatively from nodesource (but fails on centos9 with unsupported SHA1 hash)
+#RUN touch /var/lib/rpm/* \
+#	&& dnf -y install \
+#		https://rpm.nodesource.com/pub_${NODE_MAJOR_VERSION}.x/nodistro/repo/nodesource-release-nodistro-1.noarch.rpm \
+#	&& dnf -y install \
+#		nodejs \
+#	&& dnf clean all
 
 # installing yarn from the dnf repo was crashing
 # https://github.com/nodejs/help/issues/3202
