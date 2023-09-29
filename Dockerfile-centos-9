@@ -37,7 +37,7 @@ RUN echo "minrate=200k" >> /etc/dnf/dnf.conf \
 # because I use ll all the time
 COPY ./home/.bashrc /root/
 
-WORKDIR /var/www/laravel
+WORKDIR /tmp
 
 ENTRYPOINT ["/usr/share/docker-laravel-scripts/start.sh"]
 
@@ -131,7 +131,7 @@ RUN touch /var/lib/rpm/* \
 # we'll get the latest composer ourselves instead of using the centos package
 # per https://tecadmin.net/install-php-composer-on-centos/
 RUN curl -sS https://getcomposer.org/installer | php \
-	&& mv ${PROJECT_ROOT}/composer.phar /usr/local/bin/composer
+	&& mv /tmp/composer.phar /usr/local/bin/composer
 
 # Configure php
 COPY etc/php.d/php.ini /etc/php.d/local-overrides.ini
@@ -163,6 +163,8 @@ VOLUME [ \
 #	"/var/www/laravel", \
 #	"/var/run/laravel/storage"
 ]
+
+WORKDIR /var/www/laravel
 
 
 # =================================================

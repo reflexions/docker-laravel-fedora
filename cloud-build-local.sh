@@ -6,8 +6,8 @@ script_dir="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )" || exit 1
 cd "$script_dir" || exit 1
 
 
-# note: E2_HIGHCPU_32 doesn't work in cloud-build-local yet (but N1_HIGHCPU_32 does)
-from=" machineType: 'E2_HIGHCPU_32'"
+# note: E2_HIGHCPU_8 doesn't work in cloud-build-local (but N1_HIGHCPU_32 does)
+from=" machineType: 'E2_HIGHCPU_8'"
 to=" machineType: 'N1_HIGHCPU_32'"
 
 function restore_yaml() {

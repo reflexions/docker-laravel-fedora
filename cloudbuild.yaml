@@ -37,6 +37,14 @@ steps:
         # replace "." with "-"
         php_version_for_image=$(echo "${_PHP_VERSION}" | sed "s/\./-/")
         
+        php_module=${PHP_MODULE-php:remi-${_PHP_VERSION}}
+        if [ "${_OS}" == "centos-7" ]; then
+          # replace "." with ""
+          php_version_for_module=$(echo "${_PHP_VERSION}" | sed "s/\.//")
+          
+          php_module=${PHP_MODULE-php:remi-php${php_version_for_module}}
+        fi
+        
         target=php-base
         image_suffix=php-${php_version_for_image}
         
@@ -56,6 +64,7 @@ steps:
         fi
         
         echo "php: ${_PHP_VERSION}"
+        echo "php module: ${php_module}"
         echo "node: ${_NODE_MAJOR_VERSION}"
         echo "gcloud: ${_WITH_GCLOUD}"
         echo "squashed: ${_SQUASHED}"
@@ -74,19 +83,32 @@ steps:
         
         set -x #echo on
         
+        docker_tag="$BRANCH_NAME"
+        if [ "$BRANCH_NAME" == "main" ]; then
+          docker_tag=latest
+        fi
+        
+        registry_base=us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1
+        
         docker buildx build \
           --push \
           --platform "$_PLATFORMS" \
           --file "Dockerfile-${_OS}" \
           --target "$target" \
+          \
+          --build-arg BUILD_DATE="$(date --iso-8601=seconds --utc)" \
+          --build-arg GIT_COMMIT_HASH=${COMMIT_SHA} \
+          --build-arg GIT_BRANCH=${BRANCH_NAME} \
           --build-arg PHP_VERSION=${_PHP_VERSION} \
+          --build-arg PHP_MODULE=${php_module} \
           --build-arg NODE_MAJOR_VERSION=${_NODE_MAJOR_VERSION} \
-          --tag us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1/${_OS}/${image_suffix}:${BRANCH_NAME} \
-          --tag us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1/${_OS}/${image_suffix}:${COMMIT_SHA} \
+          \
+          --tag ${registry_base}/${_OS}/${image_suffix}:${docker_tag} \
+          --tag ${registry_base}/${_OS}/${image_suffix}:${COMMIT_SHA} \
           .
 
 options:
   # https://cloud.google.com/cloud-build/docs/api/reference/rest/v1/projects.builds#machinetype
   # unspecified, N1_HIGHCPU_8, N1_HIGHCPU_32, E2_HIGHCPU_8, E2_HIGHCPU_32
-  machineType: 'E2_HIGHCPU_32'
+  machineType: 'E2_HIGHCPU_8'
 timeout: 2400s
