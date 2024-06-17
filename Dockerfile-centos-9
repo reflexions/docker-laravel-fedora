@@ -1,6 +1,10 @@
-# https://wiki.centos.org/FAQ/CentOSStream
-# https://quay.io/repository/centos/centos?tab=tags
-FROM quay.io/centos/centos:stream9 as php-base
+# this mirrors quay.io/centos/centos:stream9
+# use the cubic-kubernetes/sync-docker-image-mirror/sync-centos-mirror.sh script to keep this in sync
+FROM us-central1-docker.pkg.dev/reflexions-cubic/centos-mirror/centos9/stream9:latest as updates-installed
+
+# bring this back?
+# default is 'dumb'. that cripples less, vim, coloring, etc
+#ENV TERM xterm-256color
 
 # putting && on next line, because then it's more obvious that the new line is a separate command
 # defining DNF in case we ever want to give something like fedora-minimal another shot
@@ -41,6 +45,15 @@ WORKDIR /tmp
 
 ENTRYPOINT ["/usr/share/docker-laravel-scripts/start.sh"]
 
+# the touch is per https://bugzilla.redhat.com/show_bug.cgi?id=1213602
+# it's needed for every dnf operation when the host is using overlayfs (like macs and GCR)
+RUN touch /var/lib/rpm/* \
+	&& ${DNF} -y ${UPGRADE_CMD} ${DELTA_RPM_DISABLE} ${NO_DOCS} \
+	&& ${DNF} -y reinstall tzdata \
+	&& ${DNF} clean all
+
+FROM updates-installed as php-base
+
 ARG PHP_VERSION
 
 # SSLProxyEngine requires mod_ssl to connect to an https endpoint
@@ -57,8 +70,6 @@ ARG PHP_VERSION
 # it's needed for every dnf operation when the host is using overlayfs (like macs and GCR)
 
 RUN touch /var/lib/rpm/* \
-	&& ${DNF} -y ${UPGRADE_CMD} ${DELTA_RPM_DISABLE} ${NO_DOCS} \
-	&& ${DNF} -y reinstall tzdata \
 	&& ${DNF} -y install \
 		'dnf-command(config-manager)' \
 		https://rpms.remirepo.net/enterprise/remi-release-${RHEL_VERSION}.rpm \
@@ -164,7 +175,32 @@ VOLUME [ \
 #	"/var/run/laravel/storage"
 ]
 
-WORKDIR /var/www/laravel
+WORKDIR $PROJECT_ROOT
+
+ARG GIT_BRANCH=''
+LABEL GIT_BRANCH="${GIT_BRANCH}"
+
+# OpenContainers Annotations
+# https://specs.opencontainers.org/image-spec/annotations/
+ARG GIT_COMMIT_HASH=''
+ARG BUILD_DATE=''
+LABEL org.opencontainers.image.url="https://github.com/reflexions/reflexions-drupal"
+LABEL org.opencontainers.image.revision="${GIT_COMMIT_HASH}"
+LABEL org.opencontainers.image.created="${BUILD_DATE}"
+LABEL org.opencontainers.image.title="Reflexions Drupal CentOS ${RHEL_VERSION} + PHP ${PHP_VERSION} Base Image"
+LABEL org.opencontainers.image.vendor="Reflexions"
+
+# wipe base image label-schema (superceded by OpenContainers Annotations)
+LABEL org.label-schema.vendor=""
+LABEL org.label-schema.name=""
+LABEL org.label-schema.license="Proprietary"
+LABEL org.label-schema.build-date=""
+LABEL io.buildah.version=""
+
+
+# =================================================
+FROM quay.io/centos/centos:stream9 as php-base-squashed
+COPY --from=php-base / /
 
 
 # =================================================
@@ -172,13 +208,49 @@ FROM php-base as with-node
 
 ARG NODE_MAJOR_VERSION
 
+LABEL org.opencontainers.image.title="Reflexions Laravel CentOS ${RHEL_VERSION} + PHP ${PHP_VERSION} + Node ${NODE_MAJOR_VERSION} Base Image"
+
+WORKDIR /tmp
 # centos9 has nodejs 16 out of the box
-RUN touch /var/lib/rpm/* \
-	&& dnf -y module install ${NO_DOCS} \
+# it supports LTS (even) releases up to 20 with dnf modules
+# for the rest, we'll download bins from nodejs.org (which 'dnf upgrade' will not keep up to date)
+# node < 12 needs unsafe param for https://stackoverflow.com/questions/52196518/could-not-get-uid-gid-when-building-node-docker#comment97210945_52196681
+# that doesn't work in node 18+ (maybe 16+?) though, so only apply it to node < 12
+# (only saw that in google-hosted cloud build, not cloud-build-local for some reason)
+RUN available_modules=("18" "20") \
+	&& value="\<${1}\>" \
+	&& if [[ "${NODE_MAJOR_VERSION}" = "16" ]]; then \
+		touch /var/lib/rpm/* \
+		&& ${DNF} -y install ${NO_DOCS} \
+			nodejs \
+			nodejs-full-i18n \
+		&& ${DNF} clean all; \
+	elif [[ ${available_modules[@]} =~ "${NODE_MAJOR_VERSION}" ]]; then \
+		touch /var/lib/rpm/* \
+		&& ${DNF} -y module install ${NO_DOCS} \
 		nodejs:${NODE_MAJOR_VERSION}/common \
-	&& dnf -y install \
+		&& ${DNF} -y install \
 		nodejs-full-i18n \
-	&& dnf clean all
+		&& ${DNF} clean all; \
+	else \
+		curl https://nodejs.org/dist/latest-v${NODE_MAJOR_VERSION}.x/SHASUMS256.txt -o node-shasum256.txt \
+		&& if [ $(uname -m) == "aarch64" ]; then \
+			node_tar_gz=$(grep node node-shasum256.txt | grep linux | grep arm64.tar.gz); \
+		else \
+			node_tar_gz=$(grep node node-shasum256.txt | grep linux | grep x64.tar.gz); \
+		fi \
+		&& node_tar_gz=$(echo "${node_tar_gz}" | cut -f3 -d' ') \
+		&& node_dir=$(echo "${node_tar_gz}" | sed 's/.tar.gz//') \
+		&& curl --no-progress-meter "https://nodejs.org/dist/latest-v${NODE_MAJOR_VERSION}.x/${node_tar_gz}" -o "${node_tar_gz}" \
+		&& sha256sum --check --ignore-missing node-shasum256.txt \
+		&& tar zxf "${node_tar_gz}" \
+		&& cp -rf "${node_dir}"/* /usr/ \
+		&& if [ "${NODE_MAJOR_VERSION}" -lt '12' ]; then \
+			npm config set unsafe-perm true; \
+		fi; \
+	fi
+
+WORKDIR $PROJECT_ROOT
 
 # alternatively from nodesource (but fails on centos9 with unsupported SHA1 hash)
 #RUN touch /var/lib/rpm/* \
@@ -197,9 +269,14 @@ RUN npm install -g yarn
 RUN adduser node --user-group --shell=/sbin/nologin
 
 
+# =================================================
+FROM quay.io/centos/centos:stream9 as with-node-squashed
+COPY --from=with-node / /
 
 # =================================================
 FROM with-node as with-gcloud
+
+LABEL org.opencontainers.image.title="Reflexions Laravel CentOS ${RHEL_VERSION} + PHP ${PHP_VERSION} + Node ${NODE_MAJOR_VERSION} + google-cloud-cli Base Image"
 
 # we leave google-cloud-sdk disabled because it's often slow/offline
 RUN printf "\
@@ -218,8 +295,8 @@ RUN grep -vF 'timeout=' /etc/dnf/dnf.conf.tmp > /etc/dnf/dnf.conf
 
 # gcloud needs `which` during install and runtime
 RUN touch /var/lib/rpm/* \
-	&& dnf -y install --enablerepo=google-cloud-sdk \
+	&& ${DNF} -y install --enablerepo=google-cloud-sdk \
 		google-cloud-cli \
-	&& dnf clean all
+	&& ${DNF} clean all
 
 RUN mv -f /etc/dnf/dnf.conf.bak /etc/dnf/dnf.conf

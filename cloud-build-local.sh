@@ -20,7 +20,9 @@ trap restore_yaml INT
 
 sed -i "s/$from/$to/" cloudbuild.yaml
 
-gcloud config set project reflexions-docker-laravel
+source ./gcloud.env.sh
+gcloud config set project "${CLOUDSDK_CORE_PROJECT}"
+
 time cloud-build-local \
 	-bind-mount-source \
 	--dryrun=false \
@@ -28,9 +30,9 @@ time cloud-build-local \
 COMMIT_SHA="$(git rev-parse HEAD)",\
 _PLATFORMS=linux/amd64,\
 _OS=centos-9,\
-_PHP_VERSION=8.2,\
-_NODE_MAJOR_VERSION=18,\
-_WITH_GCLOUD=1,\
+_PHP_VERSION=${PHP_VERSION-8.3},\
+_NODE_MAJOR_VERSION=${NODE_MAJOR_VERSION-20},\
+_WITH_GCLOUD=${WITH_GCLOUD-1},\
 _SQUASHED=0 \
 	.
 

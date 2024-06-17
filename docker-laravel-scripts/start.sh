@@ -37,9 +37,6 @@ fi
 # if it thinks it is already running.
 rm -rf /run/httpd/* /tmp/httpd* /run/supervisord.pid
 
-# make sure PORT is set. It's used in apache config
-export PORT=${PORT-80}
-
 # start processes
 echo "Starting the Supervisor daemon"
 
