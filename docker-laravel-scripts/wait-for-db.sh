@@ -6,9 +6,12 @@ set -x #echo on
 
 # wait for database to open its port for connections
 # http://unix.stackexchange.com/a/149053/47781
-# this weird syntax is just bash being bash. It uses the DB_HOST value if set, localhost otherwise
+
+# syntax like ${DB_CONNECTION-pgsql} is just bash being bash. It uses the DB_CONNECTION value if set, pgsql otherwise
 # http://www.tldp.org/LDP/abs/html/parameter-substitution.html
-db_driver=${DB_DRIVER-mysql}
+
+# Drupal calls this the driver, Laravel calls it the DB_CONNECTION
+db_driver=${DB_CONNECTION-pgsql}
 if [[ $db_driver = 'mysql' ]]; then
 	source ./mysql_vars_compat.sh
 
