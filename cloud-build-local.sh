@@ -23,15 +23,17 @@ sed -i "s/$from/$to/" cloudbuild.yaml
 source ./gcloud.env.sh
 gcloud config set project "${CLOUDSDK_CORE_PROJECT}"
 
+docker pull us-central1-docker.pkg.dev/docker-with-gcloud-395321/docker-with-gcloud/docker-with-gcloud:latest
+
 time cloud-build-local \
 	-bind-mount-source \
 	--dryrun=false \
 	--substitutions BRANCH_NAME="$(git rev-parse --abbrev-ref HEAD)",\
 COMMIT_SHA="$(git rev-parse HEAD)",\
-_PLATFORMS=linux/amd64,\
-_OS=centos-9,\
-_PHP_VERSION=${PHP_VERSION-8.3},\
-_NODE_MAJOR_VERSION=${NODE_MAJOR_VERSION-20},\
+_PLATFORMS=${PLATFORMS-linux/amd64},\
+_OS=${OS-centos-9},\
+_PHP_VERSION=${PHP-8.3},\
+_NODE_MAJOR_VERSION=${NODE-20},\
 _WITH_GCLOUD=${WITH_GCLOUD-1},\
 _SQUASHED=0 \
 	.

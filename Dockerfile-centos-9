@@ -1,6 +1,6 @@
 # this mirrors quay.io/centos/centos:stream9
 # use the cubic-kubernetes/sync-docker-image-mirror/sync-centos-mirror.sh script to keep this in sync
-FROM us-central1-docker.pkg.dev/reflexions-cubic/centos-mirror/centos9/stream9:latest as updates-installed
+FROM us-central1-docker.pkg.dev/reflexions-cubic/centos-mirror/centos9/stream9:latest AS updates-installed
 
 # bring this back?
 # default is 'dumb'. that cripples less, vim, coloring, etc
@@ -52,7 +52,7 @@ RUN touch /var/lib/rpm/* \
 	&& ${DNF} -y reinstall tzdata \
 	&& ${DNF} clean all
 
-FROM updates-installed as php-base
+FROM updates-installed AS php-base
 
 ARG PHP_VERSION
 
@@ -184,10 +184,10 @@ LABEL GIT_BRANCH="${GIT_BRANCH}"
 # https://specs.opencontainers.org/image-spec/annotations/
 ARG GIT_COMMIT_HASH=''
 ARG BUILD_DATE=''
-LABEL org.opencontainers.image.url="https://github.com/reflexions/reflexions-drupal"
+LABEL org.opencontainers.image.url="https://github.com/reflexions/docker-laravel-fedora"
 LABEL org.opencontainers.image.revision="${GIT_COMMIT_HASH}"
 LABEL org.opencontainers.image.created="${BUILD_DATE}"
-LABEL org.opencontainers.image.title="Reflexions Drupal CentOS ${RHEL_VERSION} + PHP ${PHP_VERSION} Base Image"
+LABEL org.opencontainers.image.title="Reflexions Laravel CentOS ${RHEL_VERSION} + PHP ${PHP_VERSION} Base Image"
 LABEL org.opencontainers.image.vendor="Reflexions"
 
 # wipe base image label-schema (superceded by OpenContainers Annotations)
@@ -199,12 +199,12 @@ LABEL io.buildah.version=""
 
 
 # =================================================
-FROM quay.io/centos/centos:stream9 as php-base-squashed
+FROM us-central1-docker.pkg.dev/reflexions-cubic/centos-mirror/centos9/stream9:latest AS php-base-squashed
 COPY --from=php-base / /
 
 
 # =================================================
-FROM php-base as with-node
+FROM php-base AS with-node
 
 ARG NODE_MAJOR_VERSION
 
@@ -270,11 +270,11 @@ RUN adduser node --user-group --shell=/sbin/nologin
 
 
 # =================================================
-FROM quay.io/centos/centos:stream9 as with-node-squashed
+FROM us-central1-docker.pkg.dev/reflexions-cubic/centos-mirror/centos9/stream9:latest AS with-node-squashed
 COPY --from=with-node / /
 
 # =================================================
-FROM with-node as with-gcloud
+FROM with-node AS with-gcloud
 
 LABEL org.opencontainers.image.title="Reflexions Laravel CentOS ${RHEL_VERSION} + PHP ${PHP_VERSION} + Node ${NODE_MAJOR_VERSION} + google-cloud-cli Base Image"
 
