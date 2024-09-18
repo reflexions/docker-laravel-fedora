@@ -9,19 +9,28 @@ cd "$script_dir" || exit 1
 # note: E2_HIGHCPU_8 doesn't work in cloud-build-local (but N1_HIGHCPU_32 does)
 from=" machineType: 'E2_HIGHCPU_8'"
 to=" machineType: 'N1_HIGHCPU_32'"
+from2="  pool:"
+to2="#  pool:"
+from3="    name: 'projects"
+to3="#    name: 'projects"
 
 function restore_yaml() {
 	# put back the original machineType
 	sed -i "s/$to/$from/" cloudbuild.yaml
+	sed -i "s/$to2/$from2/" cloudbuild.yaml
+	sed -i "s/$to3/$from3/" cloudbuild.yaml
 }
 
 # trap ctrl-c and call restore_yaml()
 trap restore_yaml INT
 
 sed -i "s/$from/$to/" cloudbuild.yaml
+sed -i "s/$from2/$to2/" cloudbuild.yaml
+sed -i "s/$from3/$to3/" cloudbuild.yaml
 
 source ./gcloud.env.sh
-gcloud config set project "${CLOUDSDK_CORE_PROJECT}"
+export CLOUDSDK_CORE_PROJECT=reflexions-docker-laravel
+#gcloud config set project "${CLOUDSDK_CORE_PROJECT}"
 
 docker pull us-central1-docker.pkg.dev/docker-with-gcloud-395321/docker-with-gcloud/docker-with-gcloud:latest
 
