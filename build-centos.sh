@@ -1,5 +1,5 @@
 # alternatively:
-# OS=centos-9 PHP_VERSION=${PHP_VERSION-8.3} NODE_MAJOR_VERSION=${NODE_MAJOR_VERSION-20} ./cloud-build-local.sh
+# OS=centos-9 PHP=${PHP_VERSION-8.3} NODE=${NODE_MAJOR_VERSION-20} ./cloud-build-local.sh
 
 build_arg="--build-arg PHP_VERSION=${PHP_VERSION-8.3} --build-arg NODE_MAJOR_VERSION=${NODE_MAJOR_VERSION-20}"
 docker build --progress plain . -f Dockerfile-centos-9 --target php-base $build_arg || exit 1
