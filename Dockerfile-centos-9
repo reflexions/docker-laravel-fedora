@@ -217,7 +217,7 @@ WORKDIR /tmp
 # node < 12 needs unsafe param for https://stackoverflow.com/questions/52196518/could-not-get-uid-gid-when-building-node-docker#comment97210945_52196681
 # that doesn't work in node 18+ (maybe 16+?) though, so only apply it to node < 12
 # (only saw that in google-hosted cloud build, not cloud-build-local for some reason)
-RUN available_modules=("18" "20") \
+RUN available_modules=("18" "20" "22") \
 	&& value="\<${1}\>" \
 	&& if [[ "${NODE_MAJOR_VERSION}" = "16" ]]; then \
 		touch /var/lib/rpm/* \
@@ -228,9 +228,9 @@ RUN available_modules=("18" "20") \
 	elif [[ ${available_modules[@]} =~ "${NODE_MAJOR_VERSION}" ]]; then \
 		touch /var/lib/rpm/* \
 		&& ${DNF} -y module install ${NO_DOCS} \
-		nodejs:${NODE_MAJOR_VERSION}/common \
+			nodejs:${NODE_MAJOR_VERSION}/common \
 		&& ${DNF} -y install \
-		nodejs-full-i18n \
+			nodejs-full-i18n \
 		&& ${DNF} clean all; \
 	else \
 		curl https://nodejs.org/dist/latest-v${NODE_MAJOR_VERSION}.x/SHASUMS256.txt -o node-shasum256.txt \
