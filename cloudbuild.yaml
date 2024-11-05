@@ -67,7 +67,19 @@ steps:
           target="${target}"-squashed
         fi
         
-        echo "platform: ${_PLATFORMS}"
+        # show-target-build-platforms during the build shows what the centos image supports
+        # to see what is available regardless of what centos supports:
+        # docker build --platform linux/amd64/10 --file Dockerfile-list-targets .
+        # ERROR: failed to solve: no support for running processes with linux/amd64/10 platform, supported: linux/amd64, linux/amd64/v2, linux/amd64/v3
+        #
+        # cloudbuild var substitution doesn't know the bash syntax with default, (${SOMEVAR-defaultval}) so instead use if
+        if [[ "${_PLATFORMS}" == "" ]]; then
+          platform="linux/amd64,linux/amd64/v2,linux/amd64/v3,linux/arm64"
+        else
+          platform=${_PLATFORMS}
+        fi
+        
+        echo "platform: ${platform}"
         echo "os: ${_OS}"
         echo "target: ${target}"
         echo "php: ${_PHP_VERSION}"
@@ -99,7 +111,7 @@ steps:
         docker buildx build \
           --progress plain \
           --push \
-          --platform "$_PLATFORMS" \
+          --platform "${platform}" \
           --file "Dockerfile-${_OS}" \
           --target "$target" \
           \

@@ -1,0 +1,3 @@
+FROM alpine
+ARG TARGETPLATFORM
+RUN echo "I'm building for $TARGETPLATFORM"

@@ -13,7 +13,7 @@ set -x #echo on
 # Drupal calls this the driver, Laravel calls it the DB_CONNECTION
 db_driver=${DB_CONNECTION-pgsql}
 if [[ $db_driver = 'mysql' ]]; then
-	source ./mysql_vars_compat.sh
+	source ./db/mysql_vars_compat.sh
 
 	if [[ "${MYSQL_HOST}" == '' || "${MYSQL_HOST}" == 'localhost' ]]; then
 		# todo: what to do with db_host=localhost? That uses unix socket MYSQL_UNIX_PORT instead of TCP.
@@ -24,7 +24,7 @@ if [[ $db_driver = 'mysql' ]]; then
 		db_port=${MYSQL_TCP_PORT}
 	fi
 else
-	source ./pg_vars_compat.sh
+	source ./db/pg_vars_compat.sh
 
 	db_host=${PGHOST}
 	db_port=${PGPORT}

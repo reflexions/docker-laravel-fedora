@@ -1,6 +1,6 @@
-# this mirrors quay.io/centos/centos:stream9
+# this mirrors quay.io/centos/centos:stream10-development
 # use the cubic-kubernetes/sync-docker-image-mirror/sync-centos-mirror.sh script to keep this in sync
-FROM us-central1-docker.pkg.dev/reflexions-cubic/centos-mirror/centos9/stream9:latest AS updates-installed
+FROM us-central1-docker.pkg.dev/reflexions-cubic/centos-mirror/centos10/stream10-development:latest AS updates-installed
 
 # bring this back?
 # default is 'dumb'. that cripples less, vim, coloring, etc
@@ -14,7 +14,7 @@ ENV DNF=/usr/bin/dnf
 ENV DELTA_RPM_DISABLE="--setopt=deltarpm=false"
 ENV NO_DOCS="--nodocs"
 ENV UPGRADE_CMD="upgrade"
-ENV RHEL_VERSION="9"
+ENV RHEL_VERSION="10"
 
 # Default ENV
 # order is OS env => Dockerfile => .env
@@ -199,7 +199,7 @@ LABEL io.buildah.version=""
 
 
 # =================================================
-FROM us-central1-docker.pkg.dev/reflexions-cubic/centos-mirror/centos9/stream9:latest AS php-base-squashed
+FROM us-central1-docker.pkg.dev/reflexions-cubic/centos-mirror/centos10/stream10-development:latest AS php-base-squashed
 COPY --from=php-base / /
 
 
@@ -212,13 +212,13 @@ LABEL org.opencontainers.image.title="Reflexions Laravel CentOS ${RHEL_VERSION} 
 
 WORKDIR /tmp
 
-# centos9 has nodejs 16 out of the box
+# centos10-development has nodejs 22 out of the box
 # it supports LTS (even) releases up to 22 with dnf modules
 # for the rest, we'll download bins from nodejs.org (which 'dnf upgrade' will not keep up to date)
 # node < 12 needs unsafe param for https://stackoverflow.com/questions/52196518/could-not-get-uid-gid-when-building-node-docker#comment97210945_52196681
 # that doesn't work in node 18+ (maybe 16+?) though, so only apply it to node < 12
 # (only saw that in google-hosted cloud build, not cloud-build-local for some reason)
-RUN available_modules=("18" "20" "22") \
+RUN available_modules=("22") \
 	&& value="\<${1}\>" \
 	&& if [[ "${NODE_MAJOR_VERSION}" = "16" ]]; then \
 		touch /var/lib/rpm/* \
@@ -271,7 +271,7 @@ RUN adduser node --user-group --shell=/sbin/nologin
 
 
 # =================================================
-FROM us-central1-docker.pkg.dev/reflexions-cubic/centos-mirror/centos9/stream9:latest AS with-node-squashed
+FROM us-central1-docker.pkg.dev/reflexions-cubic/centos-mirror/centos10/stream10-development:latest AS with-node-squashed
 COPY --from=with-node / /
 
 # =================================================

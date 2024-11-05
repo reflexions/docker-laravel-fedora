@@ -42,12 +42,15 @@ COMMIT_SHA="$(git rev-parse HEAD)",\
 _PLATFORMS=${PLATFORMS-linux/amd64},\
 _OS=${OS-centos-9},\
 _PHP_VERSION=${PHP-8.3},\
-_NODE_MAJOR_VERSION=${NODE-20},\
+_NODE_MAJOR_VERSION=${NODE-22},\
 _WITH_GCLOUD=${WITH_GCLOUD-1},\
 _SQUASHED=0 \
 	.
 
 # can't get it to accept
 # _PLATFORMS=linux/amd64,linux/amd64/v2,linux/arm64
+# have to build outside of cloud-build-local (or override the platform default in cloudbuild.yaml)
+# e.g. docker buildx build --progress plain --platform "linux/amd64,linux/amd64/v3" --file Dockerfile-centos-9  --target updates-installed .
+# but that alone won't let you emulate a different platform (that's where qemu comes in)
 
 restore_yaml
