@@ -167,7 +167,7 @@ COPY etc/supervisord.conf /etc/supervisord.conf
 COPY etc/supervisord.d/* /etc/supervisord.d/
 
 # start and setup scripts
-COPY docker-laravel-scripts/* ${REFLEXIONS_SCRIPTS_PATH}/
+COPY docker-laravel-scripts ${REFLEXIONS_SCRIPTS_PATH}/
 
 # so that the volumes are writeable by apache
 RUN mkdir /usr/share/httpd/{.cache,.composer,.yarn} \
