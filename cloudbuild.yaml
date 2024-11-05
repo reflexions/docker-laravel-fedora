@@ -74,7 +74,12 @@ steps:
         #
         # cloudbuild var substitution doesn't know the bash syntax with default, (${SOMEVAR-defaultval}) so instead use if
         if [[ "${_PLATFORMS}" == "" ]]; then
-          platform="linux/amd64,linux/amd64/v2,linux/amd64/v3,linux/arm64"
+          if [ "${_OS}" == "rockylinux-9" ]; then
+            # doesn't support arm64
+            platform="linux/amd64,linux/amd64/v2,linux/amd64/v3"
+          else
+            platform="linux/amd64,linux/amd64/v2,linux/amd64/v3,linux/arm64"
+          fi
         else
           platform=${_PLATFORMS}
         fi
@@ -95,7 +100,7 @@ steps:
         # but with multiarch build: "docker exporter does not currently support exporting manifest lists"
         # since output type=docker doesn't work, we have to --push
         
-        # remi only supports arm64 platform for centos >= 9
+        # remi only supports arm64 platform for centos >= 8
         
         # us-central1-docker.pkg.dev is artifact registry
         
