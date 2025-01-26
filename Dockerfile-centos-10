@@ -1,6 +1,6 @@
-# this mirrors quay.io/centos/centos:stream10-development
+# this mirrors quay.io/centos/centos:stream10
 # use the cubic-kubernetes/sync-docker-image-mirror/sync-centos-mirror.sh script to keep this in sync
-FROM us-central1-docker.pkg.dev/reflexions-cubic/centos-mirror/centos10/stream10-development:latest AS updates-installed
+FROM us-central1-docker.pkg.dev/reflexions-cubic/centos-mirror/centos10/stream10:latest AS updates-installed
 
 # bring this back?
 # default is 'dumb'. that cripples less, vim, coloring, etc
@@ -96,7 +96,6 @@ RUN touch /var/lib/rpm/* \
 		php-opcache \
 		php-pdo \
 		php-pecl-apcu \
-		php-pecl-imagick \
 		php-pecl-memcached \
 		php-pgsql \
 		php-redis \
@@ -199,7 +198,7 @@ LABEL io.buildah.version=""
 
 
 # =================================================
-FROM us-central1-docker.pkg.dev/reflexions-cubic/centos-mirror/centos10/stream10-development:latest AS php-base-squashed
+FROM us-central1-docker.pkg.dev/reflexions-cubic/centos-mirror/centos10/stream10:latest AS php-base-squashed
 COPY --from=php-base / /
 
 
@@ -212,15 +211,15 @@ LABEL org.opencontainers.image.title="Reflexions Laravel CentOS ${RHEL_VERSION} 
 
 WORKDIR /tmp
 
-# centos10-development has nodejs 22 out of the box
-# it supports LTS (even) releases up to 22 with dnf modules
+# centos10 has nodejs 22 out of the box
+# it doesn't have any modules yet (dnf module list)
 # for the rest, we'll download bins from nodejs.org (which 'dnf upgrade' will not keep up to date)
 # node < 12 needs unsafe param for https://stackoverflow.com/questions/52196518/could-not-get-uid-gid-when-building-node-docker#comment97210945_52196681
 # that doesn't work in node 18+ (maybe 16+?) though, so only apply it to node < 12
 # (only saw that in google-hosted cloud build, not cloud-build-local for some reason)
-RUN available_modules=("22") \
+RUN available_modules=() \
 	&& value="\<${1}\>" \
-	&& if [[ "${NODE_MAJOR_VERSION}" = "16" ]]; then \
+	&& if [[ "${NODE_MAJOR_VERSION}" = "22" ]]; then \
 		touch /var/lib/rpm/* \
 		&& ${DNF} -y install ${NO_DOCS} \
 			nodejs \
@@ -271,7 +270,7 @@ RUN adduser node --user-group --shell=/sbin/nologin
 
 
 # =================================================
-FROM us-central1-docker.pkg.dev/reflexions-cubic/centos-mirror/centos10/stream10-development:latest AS with-node-squashed
+FROM us-central1-docker.pkg.dev/reflexions-cubic/centos-mirror/centos10/stream10:latest AS with-node-squashed
 COPY --from=with-node / /
 
 # =================================================
@@ -280,12 +279,16 @@ FROM with-node AS with-gcloud
 LABEL org.opencontainers.image.title="Reflexions Laravel CentOS ${RHEL_VERSION} + PHP ${PHP_VERSION} + Node ${NODE_MAJOR_VERSION} + google-cloud-cli Base Image"
 
 # we leave google-cloud-sdk disabled because it's often slow/offline
+# Google hasn't released a cloud-sdk-el10 yet, so we use the el9 version instead
+# gpgcheck=0 because of https://issuetracker.google.com/issues/223626963?pli=1
 RUN printf "\
 [google-cloud-sdk]\n\
 name=Google Cloud SDK\n\
-baseurl=https://packages.cloud.google.com/yum/repos/cloud-sdk-el\$releasever-\$basearch\n\
+#baseurl=https://packages.cloud.google.com/yum/repos/cloud-sdk-el\$releasever-\$basearch\n\
+baseurl=https://packages.cloud.google.com/yum/repos/cloud-sdk-el9-\$basearch\n\
 enabled=0\n\
-gpgcheck=1\n\
+#gpgcheck=1\n\
+gpgcheck=0\n\
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg,https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg\n\
 " > /etc/yum.repos.d/google-cloud-sdk.repo
 

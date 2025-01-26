@@ -92,6 +92,7 @@ steps:
         echo "node: ${_NODE_MAJOR_VERSION}"
         echo "gcloud: ${_WITH_GCLOUD}"
         echo "squashed: ${_SQUASHED}"
+        echo "target: ${target}"
         
         # https://docs.docker.com/engine/reference/commandline/buildx_build/
         

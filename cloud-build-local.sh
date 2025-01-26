@@ -29,9 +29,11 @@ sed -i "s/$from2/$to2/" cloudbuild.yaml
 sed -i "s/$from3/$to3/" cloudbuild.yaml
 
 source ./gcloud.env.sh
-export CLOUDSDK_CORE_PROJECT=reflexions-docker-laravel
+
+# let's not set project unless we have to. source ./gcloud.env.sh exporting CLOUDSDK_CORE_PROJECT should be enough
 #gcloud config set project "${CLOUDSDK_CORE_PROJECT}"
 
+# used by the cloudbuild steps
 docker pull us-central1-docker.pkg.dev/docker-with-gcloud-395321/docker-with-gcloud/docker-with-gcloud:latest
 
 time cloud-build-local \
@@ -41,7 +43,7 @@ time cloud-build-local \
 COMMIT_SHA="$(git rev-parse HEAD)",\
 _PLATFORMS=${PLATFORMS-linux/amd64},\
 _OS=${OS-centos-9},\
-_PHP_VERSION=${PHP-8.3},\
+_PHP_VERSION=${PHP-8.4},\
 _NODE_MAJOR_VERSION=${NODE-22},\
 _WITH_GCLOUD=${WITH_GCLOUD-1},\
 _SQUASHED=0 \

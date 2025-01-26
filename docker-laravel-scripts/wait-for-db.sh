@@ -10,7 +10,7 @@ set -x #echo on
 # syntax like ${DB_CONNECTION-pgsql} is just bash being bash. It uses the DB_CONNECTION value if set, pgsql otherwise
 # http://www.tldp.org/LDP/abs/html/parameter-substitution.html
 
-# Drupal calls this the driver, Laravel calls it the DB_CONNECTION
+# Drupal and craft call this the driver, Laravel calls it the DB_CONNECTION
 db_driver=${DB_CONNECTION-pgsql}
 if [[ $db_driver = 'mysql' ]]; then
 	source ./db/mysql_vars_compat.sh
