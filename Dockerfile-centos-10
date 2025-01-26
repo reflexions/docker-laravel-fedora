@@ -304,3 +304,8 @@ RUN touch /var/lib/rpm/* \
 	&& ${DNF} clean all
 
 RUN mv -f /etc/dnf/dnf.conf.bak /etc/dnf/dnf.conf
+
+
+# =================================================
+FROM us-central1-docker.pkg.dev/reflexions-cubic/centos-mirror/centos10/stream10:latest AS with-gcloud-squashed
+COPY --from=with-gcloud / /
