@@ -45,6 +45,9 @@ WORKDIR /tmp
 
 ENTRYPOINT ["/usr/share/docker-laravel-scripts/start.sh"]
 
+ARG USE_OPENH264_REPO=0
+RUN if [ "${USE_OPENH264_REPO}" == "0" ]; then dnf config-manager --set-disabled epel-cisco-openh264; fi
+
 # the touch is per https://bugzilla.redhat.com/show_bug.cgi?id=1213602
 # it's needed for every dnf operation when the host is using overlayfs (like macs and GCR)
 RUN touch /var/lib/rpm/* \
