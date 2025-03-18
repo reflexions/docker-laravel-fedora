@@ -21,15 +21,6 @@ mkdir -p \
 
 cd "${LARAVEL_WWW_PATH}" || exit 1
 
-# todo: lock the db while migrations run to prevent other instances from running migrate simultaneously
-# beanstalk's leader_only isn't a guarantee, so maybe we use a db lock instead somehow?
-# ensure that the environment we're running in has had db updates applied
-if [ "$RUN_MIGRATE_FORCED" == 1 ] || [ "${RUN_MIGRATE_FORCED,,}" == 'true' ]; then
-    php artisan migrate --force || { echo "migrate failed"; exit 1; }
-elif [ "$RUN_MIGRATE" == 1 ] || [ "${RUN_MIGRATE,,}" == 'true' ]; then
-    php artisan migrate || { echo "migrate failed"; exit 1; }
-fi
-
 # same method used by https://github.com/fedora-cloud/Fedora-Dockerfiles/blob/master/apache/run-apache.sh
 
 # Make sure we're not confused by old, incompletely-shutdown httpd
