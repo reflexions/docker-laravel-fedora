@@ -33,7 +33,7 @@ mkdir ~/.ssh/
 chmod go-rwx ~/.ssh/
 touch ~/.ssh/known_hosts
 ssh-keyscan -H github.com | sort -u - ~/.ssh/known_hosts > ~/.ssh/tmp_hosts
-mv ~/.ssh/tmp_hosts ~/.ssh/known_hosts
+mv -f ~/.ssh/tmp_hosts ~/.ssh/known_hosts
 
 # configure composer if we have a token
 # GITHUB_TOKEN would be passed in as a build-arg or as an ENV var in the child Dockerfile-fedora calling setup.sh
