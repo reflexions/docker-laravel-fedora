@@ -18,7 +18,7 @@ steps:
 
   - id: 'initialize-qemu'
     name: 'us-central1-docker.pkg.dev/docker-with-gcloud-395321/docker-with-gcloud/docker-with-gcloud:latest'
-    args: [ 'docker', 'run', '--privileged', 'linuxkit/binfmt:v0.8' ]
+    args: [ 'docker', 'run', '--privileged', 'linuxkit/binfmt:v1.0.0' ]
 
   - id: 'create-builder'
     name: 'us-central1-docker.pkg.dev/docker-with-gcloud-395321/docker-with-gcloud/docker-with-gcloud:latest'
@@ -73,12 +73,16 @@ steps:
         # ERROR: failed to solve: no support for running processes with linux/amd64/10 platform, supported: linux/amd64, linux/amd64/v2, linux/amd64/v3
         #
         # cloudbuild var substitution doesn't know the bash syntax with default, (${SOMEVAR-defaultval}) so instead use if
+        # centos image manifests don't specify a specific microarchitecture even though the embedded glibc binaries do 
+        # centos 9 is compatible with linux/amd64/v2, but centos 10 requires linux/amd64/v3+
         if [[ "${_PLATFORMS}" == "" ]]; then
           if [ "${_OS}" == "rockylinux-9" ]; then
             # doesn't support arm64
-            platform="linux/amd64,linux/amd64/v2,linux/amd64/v3"
+            platform="linux/amd64"
+          elif [ "${_OS}" == "centos-8" -o "${_OS}" == "centos-9" ]; then
+            platform="linux/amd64,linux/amd64/v2,linux/arm64"
           else
-            platform="linux/amd64,linux/amd64/v2,linux/amd64/v3,linux/arm64"
+            platform="linux/amd64/v3,linux/arm64"
           fi
         else
           platform=${_PLATFORMS}
@@ -114,7 +118,7 @@ steps:
         
         registry_base=us-central1-docker.pkg.dev/$PROJECT_ID/reflexions-laravel-base-us-central1
         
-        docker buildx build \
+        exec docker buildx build \
           --progress plain \
           --push \
           --platform "${platform}" \

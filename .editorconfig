@@ -9,6 +9,6 @@ tab_width=4
 indent_style = space
 indent_size = 2
 
-[Dockerfile-*]
+[{Dockerfile-*,*.sh}]
 indent_style = tab
 indent_size = 4
