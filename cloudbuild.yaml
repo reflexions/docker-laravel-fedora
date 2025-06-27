@@ -73,7 +73,7 @@ steps:
         # ERROR: failed to solve: no support for running processes with linux/amd64/10 platform, supported: linux/amd64, linux/amd64/v2, linux/amd64/v3
         #
         # cloudbuild var substitution doesn't know the bash syntax with default, (${SOMEVAR-defaultval}) so instead use if
-        # centos image manifests don't specify a specific microarchitecture even though the embedded glibc binaries do 
+        # centos image manifests don't specify a specific microarchitecture even though the embedded glibc binaries do
         # centos 9 is compatible with linux/amd64/v2, but centos 10 requires linux/amd64/v3+
         if [[ "${_PLATFORMS}" == "" ]]; then
           if [ "${_OS}" == "rockylinux-9" ]; then
@@ -142,7 +142,8 @@ options:
   #machineType: 'E2_HIGHCPU_8'
 
   pool:
-    name: 'projects/reflexions-cubic/locations/us-central1/workerPools/e2-highmem-4'
+    # the centos-10 +node +gcloud build takes > 1 hour on e2-highmem-4
+    name: 'projects/reflexions-cubic/locations/us-central1/workerPools/e2-highmem-8'
 
 # https://cloud.google.com/build/docs/build-config-file-schema#timeout_2
 #timeout: 2400s
