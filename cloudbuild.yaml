@@ -82,7 +82,7 @@ steps:
           elif [ "${_OS}" == "centos-8" -o "${_OS}" == "centos-9" ]; then
             platform="linux/amd64,linux/amd64/v2,linux/arm64"
           else
-            platform="linux/amd64/v3,linux/arm64"
+            platform="linux/amd64,linux/amd64/v3,linux/arm64"
           fi
         else
           platform=${_PLATFORMS}
