@@ -76,7 +76,7 @@ steps:
         # centos image manifests don't specify a specific microarchitecture even though the embedded glibc binaries do
         # centos 9 is compatible with linux/amd64/v2, but centos 10 requires linux/amd64/v3+
         if [[ "${_PLATFORMS}" == "" ]]; then
-          if [ "${_OS}" == "rockylinux-9" ]; then
+          if [ "${_OS}" == "rockylinux-9" -o "${_OS}" == "centos-7" ]; then
             # doesn't support arm64
             platform="linux/amd64"
           elif [ "${_OS}" == "centos-8" -o "${_OS}" == "centos-9" ]; then
@@ -144,7 +144,7 @@ options:
 
   pool:
     # the centos-10 +node +gcloud build takes > 1 hour on e2-highmem-4
-    name: 'projects/reflexions-cubic/locations/us-central1/workerPools/e2-highmem-8'
+    name: 'projects/reflexions-docker-laravel/locations/us-central1/workerPools/e2-highmem-8'
 
 # https://cloud.google.com/build/docs/build-config-file-schema#timeout_2
 # 1 hour is the max allowed, and the default

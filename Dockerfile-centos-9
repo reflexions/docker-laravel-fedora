@@ -1,6 +1,5 @@
 # this mirrors quay.io/centos/centos:stream9
-# use the cubic-kubernetes/sync-docker-image-mirror/sync-centos-mirror.sh script to keep this in sync
-FROM us-central1-docker.pkg.dev/reflexions-cubic/centos-mirror/centos9/stream9:latest AS updates-installed
+FROM us-central1-docker.pkg.dev/reflexions-docker-laravel/centos-mirror/centos/centos:stream9 AS updates-installed
 
 # bring this back?
 # default is 'dumb'. that cripples less, vim, coloring, etc
@@ -209,7 +208,7 @@ LABEL io.buildah.version=""
 
 
 # =================================================
-FROM us-central1-docker.pkg.dev/reflexions-cubic/centos-mirror/centos9/stream9:latest AS php-base-squashed
+FROM us-central1-docker.pkg.dev/reflexions-docker-laravel/centos-mirror/centos/centos:stream9 AS php-base-squashed
 COPY --from=php-base / /
 
 
@@ -281,7 +280,7 @@ RUN adduser node --user-group --shell=/sbin/nologin
 
 
 # =================================================
-FROM us-central1-docker.pkg.dev/reflexions-cubic/centos-mirror/centos9/stream9:latest AS with-node-squashed
+FROM us-central1-docker.pkg.dev/reflexions-docker-laravel/centos-mirror/centos/centos:stream9 AS with-node-squashed
 COPY --from=with-node / /
 
 # =================================================
