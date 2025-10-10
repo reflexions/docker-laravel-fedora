@@ -52,9 +52,9 @@ ENTRYPOINT ["/usr/share/docker-laravel-scripts/start.sh"]
 # the touch is per https://bugzilla.redhat.com/show_bug.cgi?id=1213602
 # it's needed for every dnf operation when the host is using overlayfs (like macs and GCR)
 RUN touch /var/lib/rpm/* \
-	&& ${DNF} -y ${UPGRADE_CMD} ${DELTA_RPM_DISABLE} ${NO_DOCS} \
-	&& ${DNF} -y reinstall tzdata \
-	&& ${DNF} clean all
+	&& dnf -y ${UPGRADE_CMD} ${DELTA_RPM_DISABLE} ${NO_DOCS} \
+	&& dnf -y reinstall tzdata \
+	&& dnf clean all
 
 FROM updates-installed AS php-base
 
@@ -78,13 +78,13 @@ ARG PHP_VERSION
 # If some project needs it, they can always re-enable the repo
 ARG USE_OPENH264_REPO=0
 RUN touch /var/lib/rpm/* \
-	&& ${DNF} -y install \
+	&& dnf -y install \
 		'dnf-command(config-manager)' \
 		https://rpms.remirepo.net/enterprise/remi-release-${RHEL_VERSION}.rpm \
 		https://dl.fedoraproject.org/pub/epel/epel-release-latest-${RHEL_VERSION}.noarch.rpm \
 	&& if [ "${USE_OPENH264_REPO}" == "0" ]; then dnf config-manager --set-disabled epel-cisco-openh264; fi \
-	&& ${DNF} -y module install ${NO_DOCS} php:remi-${PHP_VERSION} \
-	&& ${DNF} -y install ${NO_DOCS} \
+	&& dnf -y module install ${NO_DOCS} php:remi-${PHP_VERSION} \
+	&& dnf -y install ${NO_DOCS} \
 		findutils \
 		git \
 		hostname \
@@ -117,7 +117,7 @@ RUN touch /var/lib/rpm/* \
 		unzip \
 		vim \
 		zip \
-	&& ${DNF} clean all \
+	&& dnf clean all \
 	&& mkdir /run/php-fpm
 
 # example of how you could switch php versions in a project extending this image:
@@ -231,17 +231,17 @@ RUN available_modules=("18" "20" "22") \
 	&& value="\<${1}\>" \
 	&& if [[ "${NODE_MAJOR_VERSION}" = "16" ]]; then \
 		touch /var/lib/rpm/* \
-		&& ${DNF} -y install ${NO_DOCS} \
+		&& dnf -y install ${NO_DOCS} \
 			nodejs \
 			nodejs-full-i18n \
-		&& ${DNF} clean all; \
+		&& dnf clean all; \
 	elif [[ ${available_modules[@]} =~ "${NODE_MAJOR_VERSION}" ]]; then \
 		touch /var/lib/rpm/* \
-		&& ${DNF} -y module install ${NO_DOCS} \
+		&& dnf -y module install ${NO_DOCS} \
 			nodejs:${NODE_MAJOR_VERSION}/common \
-		&& ${DNF} -y install \
+		&& dnf -y install \
 			nodejs-full-i18n \
-		&& ${DNF} clean all; \
+		&& dnf clean all; \
 	else \
 		curl https://nodejs.org/dist/latest-v${NODE_MAJOR_VERSION}.x/SHASUMS256.txt -o node-shasum256.txt \
 		&& if [ $(uname -m) == "aarch64" ]; then \
@@ -305,8 +305,8 @@ RUN grep -vF 'timeout=' /etc/dnf/dnf.conf.tmp > /etc/dnf/dnf.conf
 
 # gcloud needs `which` during install and runtime
 RUN touch /var/lib/rpm/* \
-	&& ${DNF} -y install --enablerepo=google-cloud-sdk \
+	&& dnf -y install --enablerepo=google-cloud-sdk \
 		google-cloud-cli \
-	&& ${DNF} clean all
+	&& dnf clean all
 
 RUN mv -f /etc/dnf/dnf.conf.bak /etc/dnf/dnf.conf
