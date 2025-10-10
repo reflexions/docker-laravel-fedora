@@ -14,9 +14,12 @@ myCnf="${HOME}/.my.cnf"
 if [[ ! -f "${myCnf}" ]]; then
 	# https://dev.mysql.com/doc/refman/8.4/en/option-files.html#option-file-syntax
 	# https://dev.mysql.com/doc/refman/8.4/en/connection-options.html
+	# mysqldump errors if database is in client section https://stackoverflow.com/questions/54024991/error-in-mysqldump-mysqldump-error-unknown-variable-database-somedb
 	cat <<-EOF > "${myCnf}"
-	[client]
+	[mysql]
 	database = ${DB_DATABASE}
+
+	[client]
 	user = ${DB_USERNAME}
 	password = ${MYSQL_PWD}
 	EOF
