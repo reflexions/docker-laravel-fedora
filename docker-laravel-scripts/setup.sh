@@ -11,22 +11,24 @@ echo "-----------------------"
 set -x #echo on
 
 # application run dirs
-mkdir ${LARAVEL_RUN_PATH}
-chown -R apache ${LARAVEL_RUN_PATH}
-chmod -R 775 ${LARAVEL_RUN_PATH}
+mkdir "${LARAVEL_RUN_PATH}"
+chown -R apache "${LARAVEL_RUN_PATH}"
+chmod -R 775 "${LARAVEL_RUN_PATH}"
 
-mkdir -p ${LARAVEL_STORAGE_PATH}
-mkdir ${LARAVEL_STORAGE_PATH}/app
-mkdir ${LARAVEL_STORAGE_PATH}/framework
-mkdir ${LARAVEL_STORAGE_PATH}/framework/{sessions,views,cache}
-mkdir ${LARAVEL_STORAGE_PATH}/logs
-chown -R apache ${LARAVEL_STORAGE_PATH}
-chmod -R 775 ${LARAVEL_STORAGE_PATH}
+mkdir -p "${LARAVEL_STORAGE_PATH}"
+mkdir "${LARAVEL_STORAGE_PATH}"/app
+mkdir "${LARAVEL_STORAGE_PATH}"/framework
+mkdir "${LARAVEL_STORAGE_PATH}"/framework/{sessions,views,cache}
+mkdir "${LARAVEL_STORAGE_PATH}"/logs
+chown -R apache "${LARAVEL_STORAGE_PATH}"
+chmod -R 775 "${LARAVEL_STORAGE_PATH}"
 
-mkdir -p ${LARAVEL_BOOTSTRAP_CACHE_PATH}
-mkdir ${LARAVEL_BOOTSTRAP_CACHE_PATH}/cache
-chown -R apache ${LARAVEL_BOOTSTRAP_CACHE_PATH}
-chmod -R 775 ${LARAVEL_BOOTSTRAP_CACHE_PATH}
+mkdir -p "${LARAVEL_BOOTSTRAP_CACHE_PATH}"
+mkdir "${LARAVEL_BOOTSTRAP_CACHE_PATH}"/cache
+chown -R apache "${LARAVEL_BOOTSTRAP_CACHE_PATH}"
+chmod -R 775 "${LARAVEL_BOOTSTRAP_CACHE_PATH}"
+
+mkdir /run/php-fpm
 
 # cache the github host key in case we have to connect with ssh
 mkdir ~/.ssh/
@@ -49,7 +51,7 @@ if [ -n "$GITHUB_TOKEN" ]; then
 fi
 
 # flag that setup has run
-touch ${LARAVEL_RUN_PATH}/setup-completed
+touch "${LARAVEL_RUN_PATH}"/setup-completed
 
 echo "-----------------------"
 echo "END setup.sh"
