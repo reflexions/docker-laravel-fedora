@@ -29,6 +29,7 @@ chown -R apache "${LARAVEL_BOOTSTRAP_CACHE_PATH}"
 chmod -R 775 "${LARAVEL_BOOTSTRAP_CACHE_PATH}"
 
 mkdir /run/php-fpm
+mkdir /run/httpd
 
 # cache the github host key in case we have to connect with ssh
 mkdir ~/.ssh/
