@@ -52,7 +52,7 @@ if [ -n "$GITHUB_TOKEN" ]; then
 fi
 
 # flag that setup has run
-touch "${LARAVEL_RUN_PATH}"/setup-completed
+touch "${LARAVEL_RUN_PATH}/setup-completed"
 
 echo "-----------------------"
 echo "END setup.sh"

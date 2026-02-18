@@ -81,6 +81,7 @@ steps:
         # to see what is available regardless of what centos supports:
         # docker build --platform linux/amd64/10 --file Dockerfile-list-targets .
         # ERROR: failed to solve: no support for running processes with linux/amd64/10 platform, supported: linux/amd64, linux/amd64/v2, linux/amd64/v3
+        # linux/amd64/v2 et al. are meaningless because CentOS supports what it supports (/v2 in Centos < 10, /v3 in 10+)
         #
         # cloudbuild var substitution doesn't know the bash syntax with default, (${SOMEVAR-defaultval}) so instead use if
         # centos image manifests don't specify a specific microarchitecture even though the embedded glibc binaries do
@@ -90,9 +91,10 @@ steps:
             # doesn't support arm64
             platform="linux/amd64"
           elif [ "${_OS}" == "centos-8" -o "${_OS}" == "centos-9" ]; then
-            platform="linux/amd64,linux/amd64/v2,linux/arm64"
+            # only supports linux/amd64/v2 (but centos publishes to linux/amd64)
+            platform="linux/amd64,linux/arm64"
           else
-            # linux/amd64/v3,
+            # linux/amd64/v3
             platform="linux/amd64,linux/arm64"
           fi
         else
