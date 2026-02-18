@@ -4,37 +4,47 @@
 
 
 steps:
-  - id: 'docker from registry version'
-    name: 'docker'
-    args: [ '--version' ]
-
-  - id: 'built docker version'
+  - id: 'using docker version'
     name: 'us-central1-docker.pkg.dev/docker-with-gcloud-395321/docker-with-gcloud/docker-with-gcloud:latest'
+    env:
+      - 'DOCKER_API_VERSION=$_DOCKER_API_VERSION'
     args: [ 'docker', '--version' ]
 
   - id: 'artifact registry auth'
     name: 'us-central1-docker.pkg.dev/docker-with-gcloud-395321/docker-with-gcloud/docker-with-gcloud:latest'
+    env:
+      - 'DOCKER_API_VERSION=$_DOCKER_API_VERSION'
     args: [ 'gcloud', '--quiet', 'auth', 'configure-docker', 'us-central1-docker.pkg.dev' ]
 
   - id: 'initialize-qemu'
     name: 'us-central1-docker.pkg.dev/docker-with-gcloud-395321/docker-with-gcloud/docker-with-gcloud:latest'
+    env:
+      - 'DOCKER_API_VERSION=$_DOCKER_API_VERSION'
     args: [ 'docker', 'run', '--privileged', 'linuxkit/binfmt:v1.0.0' ]
 
   - id: 'create-builder'
     name: 'us-central1-docker.pkg.dev/docker-with-gcloud-395321/docker-with-gcloud/docker-with-gcloud:latest'
+    env:
+      - 'DOCKER_API_VERSION=$_DOCKER_API_VERSION'
     args: [ 'docker', 'buildx', 'create', '--name', 'mybuilder' ]
 
   - id: 'select-builder'
     name: 'us-central1-docker.pkg.dev/docker-with-gcloud-395321/docker-with-gcloud/docker-with-gcloud:latest'
+    env:
+      - 'DOCKER_API_VERSION=$_DOCKER_API_VERSION'
     args: [ 'docker', 'buildx', 'use', 'mybuilder' ]
 
   - id: 'show-target-build-platforms'
     name: 'us-central1-docker.pkg.dev/docker-with-gcloud-395321/docker-with-gcloud/docker-with-gcloud:latest'
+    env:
+      - 'DOCKER_API_VERSION=$_DOCKER_API_VERSION'
     args: [ 'docker', 'buildx', 'inspect', '--bootstrap' ]
 
   - id: 'build-and-push'
     name: 'us-central1-docker.pkg.dev/docker-with-gcloud-395321/docker-with-gcloud/docker-with-gcloud:latest'
     entrypoint: bash
+    env:
+      - 'DOCKER_API_VERSION=$_DOCKER_API_VERSION'
     args:
       - -c
       - |

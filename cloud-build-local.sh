@@ -41,12 +41,13 @@ time cloud-build-local \
 	--dryrun=false \
 	--substitutions BRANCH_NAME="$(git rev-parse --abbrev-ref HEAD)",\
 COMMIT_SHA="$(git rev-parse HEAD)",\
-_PLATFORMS=${PLATFORMS-linux/amd64},\
-_OS=${OS-centos-10},\
-_PHP_VERSION=${PHP-8.4},\
-_NODE_MAJOR_VERSION=${NODE-22},\
-_WITH_GCLOUD=${WITH_GCLOUD-1},\
-_SQUASHED=${SQUASHED-0} \
+_DOCKER_API_VERSION="$(docker version --format '{{.Server.APIVersion}}')",\
+_PLATFORMS="${PLATFORMS-linux/amd64}",\
+_OS="${OS-centos-10}",\
+_PHP_VERSION="${PHP-8.4}",\
+_NODE_MAJOR_VERSION="${NODE-22}",\
+_WITH_GCLOUD="${WITH_GCLOUD-1}",\
+_SQUASHED="${SQUASHED-0}" \
 	.
 
 # can't get it to accept
