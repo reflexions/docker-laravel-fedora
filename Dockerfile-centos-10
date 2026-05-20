@@ -157,7 +157,7 @@ COPY etc/php-fpm.d/www.conf /etc/php-fpm.d/www.conf
 COPY etc/httpd/conf.d/* /etc/httpd/conf.d/
 
 # make Listen use a variable, PORT
-RUN sed -i 's/Listen 80/Listen \${PORT}/' /etc/httpd/conf/httpd.conf
+RUN sed -i 's/Listen 80$/Listen \${PORT}/' /etc/httpd/conf/httpd.conf
 
 # supervisord
 COPY etc/supervisord.conf /etc/supervisord.conf
