@@ -8,7 +8,8 @@ FROM us-central1-docker.pkg.dev/reflexions-docker-laravel/centos-mirror/centos/c
 # putting && on next line, because then it's more obvious that the new line is a separate command
 # defining DNF in case we ever want to give something like fedora-minimal another shot
 ENV SHELL=/bin/bash
-ENV LANG=en_US.utf8
+# C.UTF-8 is built into glibc-minimal-langpack; the stream10 image no longer ships en_US (glibc-langpack-en)
+ENV LANG=C.UTF-8
 ENV DNF=/usr/bin/dnf
 ENV DELTA_RPM_DISABLE="--setopt=deltarpm=false"
 ENV NO_DOCS="--nodocs"
